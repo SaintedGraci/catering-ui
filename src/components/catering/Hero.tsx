@@ -61,9 +61,9 @@ const Hero = () => {
           </div>
           <div className="absolute -bottom-6 -left-6 hidden md:block bg-background border border-border px-6 py-4 rounded-sm shadow-card max-w-[220px]">
             <p className="font-display italic text-foreground leading-snug">
-              "Food that tastes like a memory."
+              "Lasang lutong-bahay, dressed for the occasion."
             </p>
-            <p className="text-xs tracking-wide uppercase text-muted-foreground mt-2">— Condé Nast Traveler</p>
+            <p className="text-xs tracking-wide uppercase text-muted-foreground mt-2">— Manila Bulletin</p>
           </div>
         </div>
       </div>
