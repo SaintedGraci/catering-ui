@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useBooking } from "./BookingProvider";
 
 const Nav = () => {
+  const { open } = useBooking();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -28,12 +30,12 @@ const Nav = () => {
           <a href="#gallery" className="text-foreground/70 hover:text-primary transition-colors">Gallery</a>
           <a href="#testimonials" className="text-foreground/70 hover:text-primary transition-colors">Stories</a>
         </nav>
-        <a
-          href="#inquire"
+        <button
+          onClick={open}
           className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background text-sm hover:bg-primary transition-colors"
         >
-          Plan your event
-        </a>
+          Book now
+        </button>
       </div>
     </header>
   );
