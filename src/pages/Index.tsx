@@ -10,7 +10,7 @@ import { useEffect } from "react";
 
 const Index = () => {
   useEffect(() => {
-    document.title = "Saffron & Sage — Editorial Catering for Unforgettable Events";
+    document.title = "Sampaguita & Saro — Filipino Catering for Unforgettable Handaan";
     const meta =
       document.querySelector('meta[name="description"]') ??
       (() => {
@@ -21,7 +21,7 @@ const Index = () => {
       })();
     meta.setAttribute(
       "content",
-      "Seasonal, hand-plated catering for weddings, corporate events and private dinners. Book a tasting with Saffron & Sage."
+      "Heirloom Filipino catering for kasalan, corporate handaan and intimate boodle dinners. Lechon, kare-kare, kakanin and more. Book Sampaguita & Saro."
     );
   }, []);
 
