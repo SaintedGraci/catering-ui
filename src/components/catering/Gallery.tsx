@@ -17,9 +17,9 @@ const Gallery = () => {
               From our <em className="italic text-primary">recent tables</em>.
             </h2>
           </div>
-          <a href="#inquire" className="text-foreground border-b border-foreground/30 hover:border-primary hover:text-primary transition-colors pb-1 inline-block">
+          <button onClick={open} className="text-foreground border-b border-foreground/30 hover:border-primary hover:text-primary transition-colors pb-1 inline-block">
             Book a tasting →
-          </a>
+          </button>
         </div>
 
         <div className="grid grid-cols-12 gap-4 md:gap-6">
