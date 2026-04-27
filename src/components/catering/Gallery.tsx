@@ -2,8 +2,10 @@ import g1 from "@/assets/gallery-1.jpg";
 import g2 from "@/assets/gallery-2.jpg";
 import g3 from "@/assets/gallery-3.jpg";
 import { useReveal } from "@/hooks/use-reveal";
+import { useBooking } from "./BookingProvider";
 
 const Gallery = () => {
+  const { open } = useBooking();
   const head = useReveal<HTMLDivElement>();
   return (
     <section id="gallery" className="py-28 lg:py-40">
