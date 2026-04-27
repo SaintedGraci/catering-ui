@@ -22,7 +22,7 @@ const Nav = () => {
     >
       <div className="container flex items-center justify-between">
         <a href="#top" className="font-display text-2xl tracking-tight text-foreground">
-          Saffron <span className="text-primary">&amp;</span> Sage
+          Sampaguita <span className="text-primary">&amp;</span> Saro
         </a>
         <nav className="hidden md:flex items-center gap-10 text-sm tracking-wide">
           <a href="#menus" className="text-foreground/70 hover:text-primary transition-colors">Menus</a>
