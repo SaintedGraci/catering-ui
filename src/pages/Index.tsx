@@ -1,16 +1,40 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Nav from "@/components/catering/Nav";
+import Hero from "@/components/catering/Hero";
+import Menus from "@/components/catering/Menus";
+import Process from "@/components/catering/Process";
+import Gallery from "@/components/catering/Gallery";
+import Testimonials from "@/components/catering/Testimonials";
+import Inquire from "@/components/catering/Inquire";
+import Footer from "@/components/catering/Footer";
+import { useEffect } from "react";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  useEffect(() => {
+    document.title = "Saffron & Sage — Editorial Catering for Unforgettable Events";
+    const meta = document.querySelector('meta[name="description"]') ?? (() => {
+      const m = document.createElement("meta");
+      m.setAttribute("name", "description");
+      document.head.appendChild(m);
+      return m;
+    })();
+    meta.setAttribute(
+      "content",
+      "Seasonal, hand-plated catering for weddings, corporate events and private dinners. Book a tasting with Saffron & Sage."
+    );
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <main className="bg-background">
+      <Nav />
+      <Hero />
+      <Menus />
+      <Process />
+      <Gallery />
+      <Testimonials />
+      <Inquire />
+      <Footer />
+    </main>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
