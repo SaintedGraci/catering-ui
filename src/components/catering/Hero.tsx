@@ -9,13 +9,13 @@ const Hero = () => {
         {/* Copy */}
         <div className="lg:col-span-6 relative z-10">
           <p className="reveal text-sm tracking-[0.25em] uppercase text-primary mb-8">
-            Est. 2014 — Catering, Crafted
+            Filipino Catering · Est. 2014
           </p>
           <h1 className="reveal reveal-delay-1 font-display text-[clamp(3rem,7vw,6.5rem)] leading-[0.95] text-balance text-foreground">
-            A table made <em className="text-primary not-italic font-display italic">unforgettable</em>.
+            Salu-salo, made <em className="text-primary not-italic font-display italic">unforgettable</em>.
           </h1>
           <p className="reveal reveal-delay-2 mt-8 text-lg text-muted-foreground max-w-md leading-relaxed">
-            Seasonal menus, hand-plated by our chefs, delivered with the warmth of a dinner cooked at home — at any scale.
+            From lechon to kakanin — heirloom Filipino menus, hand-plated by our chefs and served with kalinga at every scale.
           </p>
           <div className="reveal reveal-delay-3 mt-10 flex flex-wrap items-center gap-4">
             <button
@@ -52,7 +52,7 @@ const Hero = () => {
           <div className="relative aspect-[4/5] rounded-sm overflow-hidden shadow-soft">
             <img
               src={heroSpread}
-              alt="Editorial overhead spread of artisan catering with bread, roasted vegetables, candles and brass cutlery on warm linen"
+              alt="Editorial overhead spread of Filipino catering with lechon, kare-kare, pancit and lumpia on banana leaves"
               width={1536}
               height={1536}
               className="w-full h-full object-cover animate-float-slow"
@@ -61,9 +61,9 @@ const Hero = () => {
           </div>
           <div className="absolute -bottom-6 -left-6 hidden md:block bg-background border border-border px-6 py-4 rounded-sm shadow-card max-w-[220px]">
             <p className="font-display italic text-foreground leading-snug">
-              "Food that tastes like a memory."
+              "Lasang lutong-bahay, dressed for the occasion."
             </p>
-            <p className="text-xs tracking-wide uppercase text-muted-foreground mt-2">— Condé Nast Traveler</p>
+            <p className="text-xs tracking-wide uppercase text-muted-foreground mt-2">— Manila Bulletin</p>
           </div>
         </div>
       </div>

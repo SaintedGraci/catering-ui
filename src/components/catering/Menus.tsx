@@ -7,23 +7,23 @@ const menus = [
   {
     img: menuCorporate,
     tag: "Corporate",
-    title: "The Boardroom",
-    desc: "Plated lunches, breakfast spreads and grazing tables designed to keep teams fed and focused.",
-    price: "from $42 / guest",
+    title: "Handa sa Opisina",
+    desc: "Adobo rice bowls, breakfast silog spreads and merienda grazing tables that keep teams fed and focused.",
+    price: "from ₱850 / guest",
   },
   {
     img: menuWeddings,
-    tag: "Weddings",
-    title: "The Vow",
-    desc: "Multi-course tasting menus with curated wine pairings, served family-style or formally plated.",
-    price: "from $145 / guest",
+    tag: "Kasalan",
+    title: "Pamamanhikan",
+    desc: "Multi-course Filipino tasting menus with lechon centerpieces and tropical pairings, served family-style or plated.",
+    price: "from ₱2,800 / guest",
   },
   {
     img: menuPrivate,
     tag: "Private",
-    title: "At Home",
-    desc: "Intimate dinners for 6 to 30. A chef in your kitchen, a sommelier at your table.",
-    price: "from $95 / guest",
+    title: "Boodle sa Bahay",
+    desc: "Intimate kamayan dinners for 6 to 30. A chef in your kitchen, banana leaves on your table.",
+    price: "from ₱1,950 / guest",
   },
 ];
 
@@ -67,10 +67,10 @@ const Menus = () => {
         <div ref={head.ref} className={`max-w-2xl mb-20 ${head.visible ? "reveal" : "opacity-0"}`}>
           <p className="text-sm tracking-[0.25em] uppercase text-primary mb-5">Signature Menus</p>
           <h2 className="font-display text-5xl lg:text-6xl text-balance text-foreground">
-            Three menus. <em className="italic text-primary">Endlessly</em> personal.
+            Three menus. <em className="italic text-primary">Endlessly</em> Pinoy.
           </h2>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            Every menu starts as a conversation — about the room, the season, and the people you're feeding.
+            Every menu begins as a kuwentuhan — about the celebration, the season, and the people you're feeding.
           </p>
         </div>
 

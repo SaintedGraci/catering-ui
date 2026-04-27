@@ -24,20 +24,20 @@ const Gallery = () => {
 
         <div className="grid grid-cols-12 gap-4 md:gap-6">
           <div className="col-span-12 md:col-span-7 aspect-[4/3] overflow-hidden rounded-sm group">
-            <img src={g3} alt="Outdoor garden dinner under string lights" loading="lazy" width={1024} height={1024} className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
+            <img src={g3} alt="Filipino fiesta outdoor dinner under capiz lanterns" loading="lazy" width={1024} height={1024} className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
           </div>
           <div className="col-span-6 md:col-span-5 aspect-square overflow-hidden rounded-sm group">
-            <img src={g1} alt="Chef plating with tweezers" loading="lazy" width={1024} height={1024} className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
+            <img src={g1} alt="Chef plating sisig on a sizzling plate" loading="lazy" width={1024} height={1024} className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
           </div>
           <div className="col-span-6 md:col-span-5 aspect-[4/5] overflow-hidden rounded-sm group">
-            <img src={g2} alt="Cocktail party canapés" loading="lazy" width={1024} height={1024} className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
+            <img src={g2} alt="Calamansi mojitos and lumpia at a cocktail event" loading="lazy" width={1024} height={1024} className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
           </div>
           <div className="col-span-12 md:col-span-7 aspect-[5/4] overflow-hidden rounded-sm group bg-muted flex items-center justify-center p-12 text-center">
             <div>
               <p className="font-display italic text-3xl lg:text-4xl text-foreground text-balance leading-tight">
-                "Every plate felt like it belonged to the room."
+                "Bawat sabaw, bawat ihaw — para kang nasa bahay ng lola."
               </p>
-              <p className="mt-6 text-sm tracking-[0.25em] uppercase text-muted-foreground">Maya &amp; Idris — Wedding, 2025</p>
+              <p className="mt-6 text-sm tracking-[0.25em] uppercase text-muted-foreground">Maya &amp; Iñigo — Kasalan, 2025</p>
             </div>
           </div>
         </div>

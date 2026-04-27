@@ -3,18 +3,18 @@ import { useReveal } from "@/hooks/use-reveal";
 const steps = [
   {
     n: "01",
-    title: "The Consult",
-    desc: "We meet — over coffee or video — to learn about your event, your guests and your vision.",
+    title: "Kuwentuhan",
+    desc: "We meet over coffee or kapeng barako to learn about your event, your guests and your vision.",
   },
   {
     n: "02",
     title: "The Menu",
-    desc: "Our chefs design a bespoke, seasonal menu tailored to your tastes, dietary needs and venue.",
+    desc: "Our chefs design a bespoke Filipino menu — heirloom or modern — tailored to your venue and your guests.",
   },
   {
     n: "03",
-    title: "The Event",
-    desc: "We arrive early, plate beautifully, and serve with quiet, attentive grace from start to finish.",
+    title: "The Handaan",
+    desc: "We arrive early, plate beautifully, and serve with kalinga and grace from start to finish.",
   },
 ];
 

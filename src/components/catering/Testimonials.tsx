@@ -2,19 +2,19 @@ import { useReveal } from "@/hooks/use-reveal";
 
 const quotes = [
   {
-    q: "Saffron & Sage turned our launch dinner into the talk of the season. Every detail — exquisite.",
-    name: "Lena Ortiz",
-    role: "Head of Brand, Maison Verre",
+    q: "Sampaguita & Saro turned our debut into the talk of the barangay. Lasang lutong-bahay, presented like fine dining.",
+    name: "Lara Mendoza",
+    role: "Mother of the debutante",
   },
   {
-    q: "They cooked for 180 guests and somehow made it feel like a dinner party for twelve.",
-    name: "Ravi Mehta",
+    q: "They cooked for 250 guests and somehow made it feel like a Sunday lunch with family.",
+    name: "Marco Villanueva",
     role: "Father of the bride",
   },
   {
-    q: "We've worked with them quarterly for three years. Always seasonal, always surprising.",
-    name: "Camille Beaumont",
-    role: "COO, Atrium Studios",
+    q: "We've booked them for every quarterly all-hands. Their kare-kare is a religious experience.",
+    name: "Camille Reyes",
+    role: "COO, Atrium Studios Manila",
   },
 ];
 

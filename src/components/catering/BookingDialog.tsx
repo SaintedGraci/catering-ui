@@ -10,31 +10,31 @@ type Pkg = { id: string; title: string; tagline: string; img: string };
 type Tier = { id: string; name: string; price: string; includes: string[]; featured?: boolean };
 
 const packages: Pkg[] = [
-  { id: "wedding", title: "Wedding", tagline: "Ceremonies & receptions", img: menuWeddings },
-  { id: "corporate", title: "Corporate", tagline: "Lunches, launches, off-sites", img: menuCorporate },
-  { id: "private", title: "Private Dinner", tagline: "Intimate gatherings at home", img: menuPrivate },
-  { id: "cocktail", title: "Cocktail / Social", tagline: "Canapés & grazing", img: heroSpread },
+  { id: "kasalan", title: "Kasalan", tagline: "Weddings, kasal at handaan", img: menuWeddings },
+  { id: "corporate", title: "Corporate", tagline: "Office lunches, launches, off-sites", img: menuCorporate },
+  { id: "boodle", title: "Boodle / Private", tagline: "Kamayan dinners at home", img: menuPrivate },
+  { id: "fiesta", title: "Fiesta / Social", tagline: "Birthdays, debut, salu-salo", img: heroSpread },
 ];
 
 const tiers: Tier[] = [
   {
     id: "essential",
-    name: "Essential",
-    price: "$45 – $75 / guest",
-    includes: ["3-course seasonal menu", "Plated or buffet service", "Standard tableware", "Service team for 4 hrs"],
+    name: "Bahay Kubo",
+    price: "₱850 – ₱1,500 / guest",
+    includes: ["3-course Filipino menu", "Buffet or family-style", "Standard tableware", "Service team for 4 hrs"],
   },
   {
     id: "signature",
-    name: "Signature",
-    price: "$95 – $145 / guest",
-    includes: ["5-course tasting menu", "Wine pairing options", "Premium tableware & linens", "Dedicated event lead", "Service team for 6 hrs"],
+    name: "Salu-Salo",
+    price: "₱1,800 – ₱2,800 / guest",
+    includes: ["5-course tasting menu", "Lechon centerpiece", "Premium tableware & linens", "Dedicated event lead", "Service team for 6 hrs"],
     featured: true,
   },
   {
     id: "bespoke",
-    name: "Bespoke",
-    price: "From $200 / guest",
-    includes: ["Custom-designed menu", "Sommelier service", "Full styling & florals coordination", "Chef's table experience", "Unlimited service hours"],
+    name: "Handaan ng Hari",
+    price: "From ₱4,200 / guest",
+    includes: ["Custom heirloom menu", "Sommelier & barista service", "Styling & florals coordination", "Chef's table experience", "Unlimited service hours"],
   },
 ];
 
