@@ -67,10 +67,10 @@ const Menus = () => {
         <div ref={head.ref} className={`max-w-2xl mb-20 ${head.visible ? "reveal" : "opacity-0"}`}>
           <p className="text-sm tracking-[0.25em] uppercase text-primary mb-5">Signature Menus</p>
           <h2 className="font-display text-5xl lg:text-6xl text-balance text-foreground">
-            Three menus. <em className="italic text-primary">Endlessly</em> personal.
+            Three menus. <em className="italic text-primary">Endlessly</em> Pinoy.
           </h2>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            Every menu starts as a conversation — about the room, the season, and the people you're feeding.
+            Every menu begins as a kuwentuhan — about the celebration, the season, and the people you're feeding.
           </p>
         </div>
 
