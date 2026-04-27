@@ -27,6 +27,38 @@ const menus = [
   },
 ];
 
+const MenuCard = ({ m, i }: { m: typeof menus[number]; i: number }) => {
+  const r = useReveal<HTMLElement>();
+  return (
+    <article
+      ref={r.ref}
+      className={`group cursor-pointer ${r.visible ? `reveal reveal-delay-${i + 1}` : "opacity-0"}`}
+    >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-sm mb-6 bg-muted">
+        <img
+          src={m.img}
+          alt={m.title}
+          loading="lazy"
+          width={1024}
+          height={1280}
+          className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105"
+        />
+        <div className="absolute top-4 left-4 px-3 py-1 bg-background/90 backdrop-blur-sm text-xs tracking-[0.2em] uppercase text-foreground rounded-full">
+          {m.tag}
+        </div>
+      </div>
+      <h3 className="font-display text-3xl text-foreground group-hover:text-primary transition-colors">
+        {m.title}
+      </h3>
+      <p className="mt-3 text-muted-foreground leading-relaxed">{m.desc}</p>
+      <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
+        <span className="text-sm font-medium text-foreground">{m.price}</span>
+        <span className="text-sm text-primary group-hover:translate-x-1 transition-transform">View →</span>
+      </div>
+    </article>
+  );
+};
+
 const Menus = () => {
   const head = useReveal<HTMLDivElement>();
   return (
@@ -43,38 +75,9 @@ const Menus = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 lg:gap-10">
-          {menus.map((m, i) => {
-            const r = useReveal<HTMLElement>();
-            return (
-              <article
-                key={m.title}
-                ref={r.ref}
-                className={`group cursor-pointer ${r.visible ? `reveal reveal-delay-${i + 1}` : "opacity-0"}`}
-              >
-                <div className="relative aspect-[4/5] overflow-hidden rounded-sm mb-6 bg-muted">
-                  <img
-                    src={m.img}
-                    alt={m.title}
-                    loading="lazy"
-                    width={1024}
-                    height={1280}
-                    className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-105"
-                  />
-                  <div className="absolute top-4 left-4 px-3 py-1 bg-background/90 backdrop-blur-sm text-xs tracking-[0.2em] uppercase text-foreground rounded-full">
-                    {m.tag}
-                  </div>
-                </div>
-                <h3 className="font-display text-3xl text-foreground group-hover:text-primary transition-colors">
-                  {m.title}
-                </h3>
-                <p className="mt-3 text-muted-foreground leading-relaxed">{m.desc}</p>
-                <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-                  <span className="text-sm font-medium text-foreground">{m.price}</span>
-                  <span className="text-sm text-primary group-hover:translate-x-1 transition-transform">View →</span>
-                </div>
-              </article>
-            );
-          })}
+          {menus.map((m, i) => (
+            <MenuCard key={m.title} m={m} i={i} />
+          ))}
         </div>
       </div>
     </section>

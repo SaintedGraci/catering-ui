@@ -18,6 +18,18 @@ const steps = [
   },
 ];
 
+const Step = ({ s, i, last }: { s: typeof steps[number]; i: number; last: boolean }) => {
+  const r = useReveal<HTMLDivElement>();
+  return (
+    <div ref={r.ref} className={`relative ${r.visible ? `reveal reveal-delay-${i + 1}` : "opacity-0"}`}>
+      <div className="font-display text-7xl text-primary-glow/40 leading-none mb-6">{s.n}</div>
+      <h3 className="font-display text-3xl text-background mb-4">{s.title}</h3>
+      <p className="text-background/70 leading-relaxed">{s.desc}</p>
+      {!last && <div aria-hidden className="hidden md:block absolute top-8 -right-8 w-16 h-px bg-background/20" />}
+    </div>
+  );
+};
+
 const Process = () => {
   const head = useReveal<HTMLDivElement>();
   return (
@@ -31,23 +43,9 @@ const Process = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-12 lg:gap-16">
-          {steps.map((s, i) => {
-            const r = useReveal<HTMLDivElement>();
-            return (
-              <div
-                key={s.n}
-                ref={r.ref}
-                className={`relative ${r.visible ? `reveal reveal-delay-${i + 1}` : "opacity-0"}`}
-              >
-                <div className="font-display text-7xl text-primary-glow/40 leading-none mb-6">{s.n}</div>
-                <h3 className="font-display text-3xl text-background mb-4">{s.title}</h3>
-                <p className="text-background/70 leading-relaxed">{s.desc}</p>
-                {i < steps.length - 1 && (
-                  <div aria-hidden className="hidden md:block absolute top-8 -right-8 w-16 h-px bg-background/20" />
-                )}
-              </div>
-            );
-          })}
+          {steps.map((s, i) => (
+            <Step key={s.n} s={s} i={i} last={i === steps.length - 1} />
+          ))}
         </div>
       </div>
       <div aria-hidden className="absolute top-1/2 -translate-y-1/2 -right-40 w-[500px] h-[500px] rounded-full bg-primary/20 blur-3xl" />

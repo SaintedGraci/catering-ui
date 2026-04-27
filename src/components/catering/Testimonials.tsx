@@ -18,6 +18,26 @@ const quotes = [
   },
 ];
 
+const QuoteCard = ({ t, i }: { t: typeof quotes[number]; i: number }) => {
+  const r = useReveal<HTMLElement>();
+  return (
+    <figure
+      ref={r.ref}
+      className={`bg-background p-8 lg:p-10 rounded-sm shadow-card flex flex-col justify-between min-h-[280px] ${
+        r.visible ? `reveal reveal-delay-${i + 1}` : "opacity-0"
+      }`}
+    >
+      <blockquote className="font-display italic text-xl lg:text-2xl text-foreground leading-snug">
+        "{t.q}"
+      </blockquote>
+      <figcaption className="mt-8 pt-6 border-t border-border">
+        <div className="font-medium text-foreground">{t.name}</div>
+        <div className="text-sm text-muted-foreground mt-1">{t.role}</div>
+      </figcaption>
+    </figure>
+  );
+};
+
 const Testimonials = () => {
   const head = useReveal<HTMLDivElement>();
   return (
@@ -31,26 +51,9 @@ const Testimonials = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {quotes.map((t, i) => {
-            const r = useReveal<HTMLElement>();
-            return (
-              <figure
-                key={t.name}
-                ref={r.ref}
-                className={`bg-background p-8 lg:p-10 rounded-sm shadow-card flex flex-col justify-between min-h-[280px] ${
-                  r.visible ? `reveal reveal-delay-${i + 1}` : "opacity-0"
-                }`}
-              >
-                <blockquote className="font-display italic text-xl lg:text-2xl text-foreground leading-snug">
-                  "{t.q}"
-                </blockquote>
-                <figcaption className="mt-8 pt-6 border-t border-border">
-                  <div className="font-medium text-foreground">{t.name}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{t.role}</div>
-                </figcaption>
-              </figure>
-            );
-          })}
+          {quotes.map((t, i) => (
+            <QuoteCard key={t.name} t={t} i={i} />
+          ))}
         </div>
       </div>
     </section>
