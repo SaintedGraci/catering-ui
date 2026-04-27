@@ -5,7 +5,7 @@ const Ctx = createContext<{ open: () => void } | null>(null);
 
 export const useBooking = () => {
   const c = useContext(Ctx);
-  if (!c) throw new Error("useBooking outside provider");
+  if (!c) return { open: () => {} };
   return c;
 };
 
