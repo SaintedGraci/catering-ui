@@ -1,6 +1,8 @@
 import heroSpread from "@/assets/hero-spread.jpg";
+import { useBooking } from "./BookingProvider";
 
 const Hero = () => {
+  const { open } = useBooking();
   return (
     <section id="top" className="relative min-h-screen pt-32 pb-20 overflow-hidden">
       <div className="container grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
@@ -16,13 +18,13 @@ const Hero = () => {
             Seasonal menus, hand-plated by our chefs, delivered with the warmth of a dinner cooked at home — at any scale.
           </p>
           <div className="reveal reveal-delay-3 mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href="#inquire"
+            <button
+              onClick={open}
               className="group inline-flex items-center gap-3 px-7 py-4 rounded-full gradient-warm text-primary-foreground shadow-soft hover:shadow-card transition-all"
             >
-              Plan your event
+              Book your event
               <span className="transition-transform group-hover:translate-x-1">→</span>
-            </a>
+            </button>
             <a
               href="#menus"
               className="inline-flex items-center gap-2 px-6 py-4 text-foreground border-b border-foreground/30 hover:border-primary hover:text-primary transition-colors"
