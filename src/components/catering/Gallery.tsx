@@ -2,8 +2,10 @@ import g1 from "@/assets/gallery-1.jpg";
 import g2 from "@/assets/gallery-2.jpg";
 import g3 from "@/assets/gallery-3.jpg";
 import { useReveal } from "@/hooks/use-reveal";
+import { useBooking } from "./BookingProvider";
 
 const Gallery = () => {
+  const { open } = useBooking();
   const head = useReveal<HTMLDivElement>();
   return (
     <section id="gallery" className="py-28 lg:py-40">
@@ -15,9 +17,9 @@ const Gallery = () => {
               From our <em className="italic text-primary">recent tables</em>.
             </h2>
           </div>
-          <a href="#inquire" className="text-foreground border-b border-foreground/30 hover:border-primary hover:text-primary transition-colors pb-1 inline-block">
+          <button onClick={open} className="text-foreground border-b border-foreground/30 hover:border-primary hover:text-primary transition-colors pb-1 inline-block">
             Book a tasting →
-          </a>
+          </button>
         </div>
 
         <div className="grid grid-cols-12 gap-4 md:gap-6">
