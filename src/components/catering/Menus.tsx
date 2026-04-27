@@ -7,23 +7,23 @@ const menus = [
   {
     img: menuCorporate,
     tag: "Corporate",
-    title: "The Boardroom",
-    desc: "Plated lunches, breakfast spreads and grazing tables designed to keep teams fed and focused.",
-    price: "from $42 / guest",
+    title: "Handa sa Opisina",
+    desc: "Adobo rice bowls, breakfast silog spreads and merienda grazing tables that keep teams fed and focused.",
+    price: "from ₱850 / guest",
   },
   {
     img: menuWeddings,
-    tag: "Weddings",
-    title: "The Vow",
-    desc: "Multi-course tasting menus with curated wine pairings, served family-style or formally plated.",
-    price: "from $145 / guest",
+    tag: "Kasalan",
+    title: "Pamamanhikan",
+    desc: "Multi-course Filipino tasting menus with lechon centerpieces and tropical pairings, served family-style or plated.",
+    price: "from ₱2,800 / guest",
   },
   {
     img: menuPrivate,
     tag: "Private",
-    title: "At Home",
-    desc: "Intimate dinners for 6 to 30. A chef in your kitchen, a sommelier at your table.",
-    price: "from $95 / guest",
+    title: "Boodle sa Bahay",
+    desc: "Intimate kamayan dinners for 6 to 30. A chef in your kitchen, banana leaves on your table.",
+    price: "from ₱1,950 / guest",
   },
 ];
 
