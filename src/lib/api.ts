@@ -1,8 +1,11 @@
 // ─── API Service Layer ───
 // Central client that connects catering-ui → CATERING-SERVER
+// In production, use VITE_API_URL from environment variables
 // In dev, requests to /api are proxied by Vite to http://localhost:5000
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 // Track if we're currently refreshing to avoid multiple refresh requests
 let isRefreshing = false;
