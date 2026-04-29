@@ -164,7 +164,7 @@ const Menus = () => {
         const displayMenus: DisplayMenu[] = activeMenus.slice(0, 3).map((menu: Menu, index: number) => {
           const isFeature = index === 0;
           return {
-            img: menu.image ? `http://localhost:5000${menu.image}` : getMenuImage(menu.type),
+            img: menu.image ? (menu.image.startsWith('http') ? menu.image : `${import.meta.env.VITE_API_URL}${menu.image}`) : getMenuImage(menu.type),
             tag: getMenuTag(menu.type),
             n: String(index + 1).padStart(2, "0"),
             title: menu.name,

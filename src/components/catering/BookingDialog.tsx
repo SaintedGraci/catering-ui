@@ -165,7 +165,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
           id: menu.id.toString(),
           title: menu.name,
           tagline: getMenuTagline(menu.type, menu.description),
-          img: menu.image ? `http://localhost:5000${menu.image}` : getMenuImage(menu.type),
+          img: menu.image ? (menu.image.startsWith('http') ? menu.image : `${import.meta.env.VITE_API_URL}${menu.image}`) : getMenuImage(menu.type),
           menuType: menu.type,
         }));
         setPackages(dbPackages);
@@ -737,7 +737,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
               {viewingDish.image && (
                 <div className="relative w-full h-64 rounded-lg overflow-hidden bg-muted">
                   <img
-                    src={`http://localhost:5000${viewingDish.image}`}
+                    src={viewingDish.image?.startsWith('http') ? viewingDish.image : `${import.meta.env.VITE_API_URL}${viewingDish.image}`}
                     alt={viewingDish.name}
                     className="w-full h-full object-cover"
                   />

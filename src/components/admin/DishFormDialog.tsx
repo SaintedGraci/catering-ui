@@ -34,7 +34,8 @@ const DishFormDialog = ({ open, onClose, dish }: DishFormDialogProps) => {
         servingSize: dish.servingSize || "",
         preparationTime: dish.preparationTime?.toString() || "",
       });
-      setImagePreview(dish.image ? `http://localhost:5000${dish.image}` : "");
+      // Cloudinary URLs are already full URLs, local uploads start with /uploads
+      setImagePreview(dish.image ? (dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL}${dish.image}`) : "");
       setSelectedFile(null);
     } else {
       setFormData({

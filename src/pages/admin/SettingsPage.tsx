@@ -54,7 +54,8 @@ const SettingsPage = () => {
       if (response.data) {
         setSettings(response.data);
         if (response.data.logo) {
-          setLogoPreview(`http://localhost:5000${response.data.logo}`);
+          // Cloudinary URLs are already full URLs, local uploads start with /uploads
+          setLogoPreview(response.data.logo.startsWith('http') ? response.data.logo : `${import.meta.env.VITE_API_URL}${response.data.logo}`);
         }
       }
     } catch (error) {

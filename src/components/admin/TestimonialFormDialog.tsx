@@ -38,7 +38,8 @@ const TestimonialFormDialog = ({ open, onClose, testimonial }: TestimonialFormDi
         isFeatured: testimonial.isFeatured,
         sortOrder: testimonial.sortOrder,
       });
-      setImagePreview(testimonial.image ? `http://localhost:5000${testimonial.image}` : "");
+      // Cloudinary URLs are already full URLs, local uploads start with /uploads
+      setImagePreview(testimonial.image ? (testimonial.image.startsWith('http') ? testimonial.image : `${import.meta.env.VITE_API_URL}${testimonial.image}`) : "");
       setSelectedFile(null);
     } else {
       setFormData({

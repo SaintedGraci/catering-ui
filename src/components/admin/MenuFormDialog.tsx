@@ -36,7 +36,8 @@ const MenuFormDialog = ({ open, onClose, menu }: MenuFormDialogProps) => {
         isActive: menu.isActive,
         image: menu.image || "",
       });
-      setImagePreview(menu.image ? `http://localhost:5000${menu.image}` : "");
+      // Cloudinary URLs are already full URLs, local uploads start with /uploads
+      setImagePreview(menu.image ? (menu.image.startsWith('http') ? menu.image : `${import.meta.env.VITE_API_URL}${menu.image}`) : "");
       setSelectedFile(null);
     } else {
       setFormData({
