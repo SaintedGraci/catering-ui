@@ -143,10 +143,7 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         maxPrice: formData.maxPrice ? parseFloat(formData.maxPrice) : undefined,
         includes: formData.includes,
         dishSelectionCount: formData.dishSelectionCount ? parseInt(formData.dishSelectionCount) : undefined,
-        dishes: formData.selectedDishes.map((dishId, index) => ({
-          dishId,
-          sortOrder: index
-        })),
+        dishes: formData.selectedDishes, // Send array of dish IDs directly
         isFeatured: formData.isFeatured,
         isActive: formData.isActive
       };
