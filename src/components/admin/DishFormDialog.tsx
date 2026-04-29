@@ -219,22 +219,24 @@ const DishFormDialog = ({ open, onClose, dish }: DishFormDialogProps) => {
               
               {imagePreview && (
                 <div className="mb-3 relative">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="w-full h-48 object-cover rounded-xl"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImagePreview("");
-                      setSelectedFile(null);
-                      setFormData({ ...formData, image: "" });
-                    }}
-                    className="absolute top-2 right-2 p-2 rounded-lg bg-destructive/90 hover:bg-destructive text-destructive-foreground"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div className="relative w-full aspect-square max-w-sm mx-auto">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImagePreview("");
+                        setSelectedFile(null);
+                        setFormData({ ...formData, image: "" });
+                      }}
+                      className="absolute top-2 right-2 p-2 rounded-lg bg-destructive/90 hover:bg-destructive text-destructive-foreground"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               )}
 
