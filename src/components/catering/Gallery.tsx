@@ -49,7 +49,7 @@ const Gallery = () => {
               loading="lazy"
               width={1024}
               height={1024}
-              className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
             <figcaption className="absolute bottom-5 left-5 glass-dark text-background px-4 py-2 rounded-full text-xs font-mono tracking-[0.2em] uppercase">
               Fiesta · Tagaytay
@@ -62,7 +62,7 @@ const Gallery = () => {
               loading="lazy"
               width={1024}
               height={1024}
-              className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
             <figcaption className="absolute bottom-5 left-5 glass-dark text-background px-4 py-2 rounded-full text-xs font-mono tracking-[0.2em] uppercase">
               Sisig · Plated
@@ -75,7 +75,7 @@ const Gallery = () => {
               loading="lazy"
               width={1024}
               height={1024}
-              className="w-full h-full object-cover transition-transform duration-[1.4s] group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
             <figcaption className="absolute bottom-5 left-5 glass-dark text-background px-4 py-2 rounded-full text-xs font-mono tracking-[0.2em] uppercase">
               Cocktails · Makati

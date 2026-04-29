@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# Filipino Catering System
 
-TODO: Document your project here
+A comprehensive catering management system for Filipino cuisine events.
