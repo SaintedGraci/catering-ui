@@ -735,7 +735,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
               </div>
 
               {viewingDish.image && (
-                <div className="relative w-full h-64 rounded-lg overflow-hidden bg-muted">
+                <div className="relative w-full aspect-square max-w-md mx-auto rounded-lg overflow-hidden bg-muted">
                   <img
                     src={viewingDish.image?.startsWith('http') ? viewingDish.image : `${import.meta.env.VITE_API_URL}${viewingDish.image}`}
                     alt={viewingDish.name}
