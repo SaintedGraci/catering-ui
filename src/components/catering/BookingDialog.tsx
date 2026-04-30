@@ -298,19 +298,31 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
     }
 
     try {
+      // Calculate estimated price
+      const guestCount = parseInt(details.guests);
+      const pricePerGuest = selectedTier.minPrice || 0;
+      const estimatedPrice = guestCount * pricePerGuest;
+
+      // Get dish details for storage
+      const dishDetails = selectedDishes.map(dishId => {
+        const dish = availableDishes.find(d => d.id === dishId);
+        return dish ? { id: dish.id, name: dish.name, category: dish.category } : null;
+      }).filter(Boolean);
+
       await bookingService.create({
         customerName: info.name,
         customerEmail: info.email,
         customerPhone: info.phone,
         eventDate: details.date,
-        guestCount: parseInt(details.guests),
+        guestCount: guestCount,
         venue: details.venue || undefined,
         packageId: isNaN(parseInt(tier)) ? undefined : parseInt(tier),
         packageName: selectedPackage.title,
         tier: tierEnum,
         tierName: selectedTier.name,
-        selectedDishes: selectedDishes.length > 0 ? selectedDishes : undefined,
+        selectedDishes: dishDetails.length > 0 ? dishDetails : undefined,
         notes: info.notes || undefined,
+        estimatedPrice: estimatedPrice > 0 ? estimatedPrice : undefined,
       });
 
       toast({
