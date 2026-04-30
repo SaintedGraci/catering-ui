@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { menuService, bookingService, packageService, type Menu, type Package } from "@/lib/api";
-import { Eye } from "lucide-react";
+import { Eye, UtensilsCrossed } from "lucide-react";
 import menuCorporate from "@/assets/menu-corporate.jpg";
 import menuWeddings from "@/assets/menu-weddings.jpg";
 import menuPrivate from "@/assets/menu-private.jpg";
@@ -606,7 +606,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                         </span>
                       </div>
                       
-                      <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {categoryDishes.map((dish) => {
                           const isSelected = selectedInCategory.includes(dish.id);
                           const canSelect = selectedInCategory.length < required;
@@ -614,71 +614,112 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                           return (
                             <div
                               key={dish.id}
-                              className={`relative text-left p-5 rounded-sm border-2 transition-all ${
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedDishesByCategory({
+                                    ...selectedDishesByCategory,
+                                    [category]: selectedInCategory.filter(id => id !== dish.id)
+                                  });
+                                } else if (canSelect) {
+                                  setSelectedDishesByCategory({
+                                    ...selectedDishesByCategory,
+                                    [category]: [...selectedInCategory, dish.id]
+                                  });
+                                } else {
+                                  toast({
+                                    title: "Maximum reached",
+                                    description: `You can only select ${required} ${category.replace('_', ' ')} ${required === 1 ? 'dish' : 'dishes'}`,
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                              className={`group relative overflow-hidden rounded-xl cursor-pointer transition-all ${
                                 isSelected
-                                  ? "border-primary bg-card shadow-card"
-                                  : "border-border bg-card"
+                                  ? "ring-4 ring-primary shadow-2xl shadow-primary/30 scale-[1.02]"
+                                  : "hover:shadow-xl hover:scale-[1.01]"
                               }`}
                             >
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1">
-                                  <h4 className="font-display text-lg font-medium text-foreground">
-                                    {dish.name}
-                                  </h4>
-                                  {dish.description && (
-                                    <p className="text-sm text-foreground/70 mt-1 line-clamp-2">{dish.description}</p>
-                                  )}
-                                </div>
-                                {isSelected && (
-                                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs ml-2">
-                                    ✓
+                              {/* Dish Image - Full Cover */}
+                              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                                {dish.image ? (
+                                  <img
+                                    src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
+                                    alt={dish.name}
+                                    className={`w-full h-full object-cover transition-transform duration-500 ${
+                                      isSelected ? 'scale-110' : 'group-hover:scale-110'
+                                    }`}
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                                    <UtensilsCrossed className="w-16 h-16 text-muted-foreground/30" />
                                   </div>
                                 )}
+                                
+                                {/* Gradient Overlay */}
+                                <div className={`absolute inset-0 bg-gradient-to-t transition-opacity duration-300 ${
+                                  isSelected 
+                                    ? 'from-primary/90 via-primary/50 to-transparent' 
+                                    : 'from-black/80 via-black/30 to-transparent group-hover:from-black/90'
+                                }`} />
+                                
+                                {/* Selected Badge */}
+                                {isSelected && (
+                                  <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center animate-in zoom-in duration-300">
+                                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                                      ✓
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* View Details Button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setViewingDish(dish);
+                                    setIsDishModalOpen(true);
+                                  }}
+                                  className="absolute top-3 left-3 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 transition-all opacity-0 group-hover:opacity-100"
+                                  title="View details"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                
+                                {/* Content Overlay */}
+                                <div className="absolute bottom-0 left-0 right-0 p-4">
+                                  <div className="space-y-2">
+                                    {/* Category Badge */}
+                                    <span className="inline-block px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 text-xs font-medium uppercase tracking-wider">
+                                      {dish.category.replace('_', ' ')}
+                                    </span>
+                                    
+                                    {/* Dish Name */}
+                                    <h4 className="font-display text-xl font-semibold text-white drop-shadow-lg leading-tight">
+                                      {dish.name}
+                                    </h4>
+                                    
+                                    {/* Description */}
+                                    {dish.description && (
+                                      <p className="text-sm text-white/90 line-clamp-2 drop-shadow-md">
+                                        {dish.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
-                              <div className="flex items-center justify-between mt-3">
-                                <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs uppercase">
-                                  {dish.category}
-                                </span>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setViewingDish(dish);
-                                      setIsDishModalOpen(true);
-                                    }}
-                                    className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-                                    title="View details"
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      if (isSelected) {
-                                        setSelectedDishesByCategory({
-                                          ...selectedDishesByCategory,
-                                          [category]: selectedInCategory.filter(id => id !== dish.id)
-                                        });
-                                      } else if (canSelect) {
-                                        setSelectedDishesByCategory({
-                                          ...selectedDishesByCategory,
-                                          [category]: [...selectedInCategory, dish.id]
-                                        });
-                                      } else {
-                                        toast({
-                                          title: "Maximum reached",
-                                          description: `You can only select ${required} ${category.replace('_', ' ')} ${required === 1 ? 'dish' : 'dishes'}`,
-                                          variant: "destructive",
-                                        });
-                                      }
-                                    }}
-                                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                                      isSelected
-                                        ? "bg-destructive/10 hover:bg-destructive/20 text-destructive"
-                                        : "bg-primary hover:bg-primary/90 text-primary-foreground"
-                                    }`}
-                                  >
-                                    {isSelected ? "Remove" : "Select"}
-                                  </button>
+                              
+                              {/* Action Button */}
+                              <div className={`p-3 transition-colors ${
+                                isSelected 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'bg-card border-t border-border group-hover:bg-muted'
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-medium">
+                                    {isSelected ? 'Selected' : 'Click to select'}
+                                  </span>
+                                  {isSelected && (
+                                    <span className="text-xs opacity-80">Tap to remove</span>
+                                  )}
                                 </div>
                               </div>
                             </div>
