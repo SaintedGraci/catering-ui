@@ -472,7 +472,7 @@ const BookingsPage = () => {
                   </h3>
                   
                   {selectedDishDetails.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       {/* Group dishes by category */}
                       {['appetizer', 'main_course', 'side_dish', 'dessert', 'beverage'].map(category => {
                         const categoryDishes = selectedDishDetails.filter(dish => dish.category === category);
@@ -480,30 +480,51 @@ const BookingsPage = () => {
                         
                         return (
                           <div key={category}>
-                            <h4 className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
+                            <h4 className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
                               {category.replace('_', ' ')} ({categoryDishes.length})
                             </h4>
-                            <div className="grid md:grid-cols-2 gap-3">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {categoryDishes.map((dish) => (
                                 <div
                                   key={dish.id}
-                                  className="flex items-start gap-3 p-3 bg-background rounded-lg border border-border"
+                                  className="group relative overflow-hidden rounded-xl bg-background border border-border hover:border-primary/50 transition-all hover:shadow-lg"
                                 >
-                                  {dish.image && (
-                                    <img
-                                      src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL}${dish.image}`}
-                                      alt={dish.name}
-                                      className="w-12 h-12 rounded object-cover flex-shrink-0"
-                                    />
+                                  {/* Dish Image - Full Cover */}
+                                  {dish.image ? (
+                                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                                      <img
+                                        src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL}${dish.image}`}
+                                        alt={dish.name}
+                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                      />
+                                      {/* Gradient Overlay */}
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                                      {/* Dish Name on Image */}
+                                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                                        <h5 className="font-semibold text-white text-lg drop-shadow-lg">
+                                          {dish.name}
+                                        </h5>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="relative aspect-[4/3] bg-muted flex items-center justify-center">
+                                      <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30" />
+                                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+                                        <h5 className="font-semibold text-white text-lg">
+                                          {dish.name}
+                                        </h5>
+                                      </div>
+                                    </div>
                                   )}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium">{dish.name}</p>
-                                    {dish.description && (
-                                      <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                  
+                                  {/* Dish Description */}
+                                  {dish.description && (
+                                    <div className="p-4">
+                                      <p className="text-sm text-muted-foreground line-clamp-2">
                                         {dish.description}
                                       </p>
-                                    )}
-                                  </div>
+                                    </div>
+                                  )}
                                 </div>
                               ))}
                             </div>
