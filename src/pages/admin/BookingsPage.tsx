@@ -419,16 +419,20 @@ const BookingsPage = () => {
                     <p className="font-medium">{selectedBooking.tierName}</p>
                   </div>
                 </div>
-                {selectedBooking.estimatedPrice && (
-                  <div className="pt-4 border-t border-border">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      Estimated Total Price
-                    </p>
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                    Estimated Total Price
+                  </p>
+                  {selectedBooking.estimatedPrice ? (
                     <p className="font-bold text-2xl text-primary">
                       {formatCurrency(selectedBooking.estimatedPrice)}
                     </p>
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">
+                      Price not calculated for this booking
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Selected Dishes */}
@@ -446,8 +450,14 @@ const BookingsPage = () => {
                       >
                         <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{dish.name}</p>
-                          <p className="text-xs text-muted-foreground">{dish.category}</p>
+                          {typeof dish === 'object' && dish.name ? (
+                            <>
+                              <p className="font-medium truncate">{dish.name}</p>
+                              <p className="text-xs text-muted-foreground">{dish.category}</p>
+                            </>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">Dish ID: {dish}</p>
+                          )}
                         </div>
                       </div>
                     ))}
