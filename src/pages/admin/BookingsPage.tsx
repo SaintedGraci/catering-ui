@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Search, Calendar, Eye, CheckCircle, XCircle, Clock, Mail, Phone, MapPin, Users, UtensilsCrossed, MessageSquare, X } from "lucide-react";
-import { bookingService, dishService, type Booking, type Dish } from "@/lib/api";
+import { bookingService, dishService, packageService, type Booking, type Dish, type Package } from "@/lib/api";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ const BookingsPage = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedDishDetails, setSelectedDishDetails] = useState<Dish[]>([]);
+  const [selectedPackageDetails, setSelectedPackageDetails] = useState<Package | null>(null);
 
   useEffect(() => {
     document.title = "Bookings — Sampaguita & Saro Admin";
@@ -119,6 +120,19 @@ const BookingsPage = () => {
   const handleViewDetails = async (booking: Booking) => {
     setSelectedBooking(booking);
     setIsDetailDialogOpen(true);
+    
+    // Fetch package details to get pricing
+    if (booking.packageId) {
+      try {
+        const packageResponse = await packageService.getById(booking.packageId);
+        setSelectedPackageDetails(packageResponse.data);
+      } catch (error) {
+        console.error("Failed to fetch package details:", error);
+        setSelectedPackageDetails(null);
+      }
+    } else {
+      setSelectedPackageDetails(null);
+    }
     
     // Fetch dish details if there are selected dishes
     if (booking.selectedDishes && booking.selectedDishes.length > 0) {
@@ -432,14 +446,19 @@ const BookingsPage = () => {
                     <p className="font-medium">{selectedBooking.tierName}</p>
                   </div>
                 </div>
-                {selectedBooking.estimatedPrice && (
+                {selectedPackageDetails && (
                   <div className="pt-4 border-t border-border">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      Estimated Total Price
+                      Package Price
                     </p>
                     <p className="font-bold text-2xl text-primary">
-                      {formatCurrency(selectedBooking.estimatedPrice)}
+                      ₱{selectedPackageDetails.estimatedPrice}
                     </p>
+                    {selectedPackageDetails.goodForPax && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Good for {selectedPackageDetails.goodForPax} pax
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
