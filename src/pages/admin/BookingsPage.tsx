@@ -419,6 +419,16 @@ const BookingsPage = () => {
                     <p className="font-medium">{selectedBooking.tierName}</p>
                   </div>
                 </div>
+                {selectedBooking.packagePrice && (
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      Package Price
+                    </p>
+                    <p className="font-semibold text-lg text-foreground">
+                      {selectedBooking.packagePrice}
+                    </p>
+                  </div>
+                )}
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                     Estimated Total Price

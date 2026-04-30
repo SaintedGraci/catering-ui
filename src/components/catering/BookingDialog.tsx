@@ -318,6 +318,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
         venue: details.venue || undefined,
         packageId: isNaN(parseInt(tier)) ? undefined : parseInt(tier),
         packageName: selectedPackage.title,
+        packagePrice: selectedTier.price, // Store the package price range
         tier: tierEnum,
         tierName: selectedTier.name,
         selectedDishes: dishDetails.length > 0 ? dishDetails : undefined,
