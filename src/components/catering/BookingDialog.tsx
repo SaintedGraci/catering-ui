@@ -28,6 +28,7 @@ type Tier = {
   featured?: boolean;
   dishes?: any[];
   dishSelectionCount?: number;
+  dishSelectionRules?: Record<string, number>;
   minPrice?: number;
   maxPrice?: number;
 };
@@ -105,6 +106,13 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   const [pkg, setPkg] = useState<string>("");
   const [tier, setTier] = useState<string>("");
   const [selectedDishes, setSelectedDishes] = useState<number[]>([]);
+  const [selectedDishesByCategory, setSelectedDishesByCategory] = useState<Record<string, number[]>>({
+    appetizer: [],
+    main_course: [],
+    side_dish: [],
+    dessert: [],
+    beverage: []
+  });
   const [details, setDetails] = useState({ date: "", guests: "", venue: "" });
   const [info, setInfo] = useState({ name: "", email: "", phone: "", notes: "" });
   const [packages, setPackages] = useState<Pkg[]>(fallbackPackages);
@@ -114,6 +122,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   const [selectedMenuType, setSelectedMenuType] = useState<string>("");
   const [availableDishes, setAvailableDishes] = useState<any[]>([]);
   const [dishSelectionCount, setDishSelectionCount] = useState<number>(0);
+  const [dishSelectionRules, setDishSelectionRules] = useState<Record<string, number> | null>(null);
   const [viewingDish, setViewingDish] = useState<any | null>(null);
   const [isDishModalOpen, setIsDishModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -143,13 +152,40 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
       const selectedTier = tiers.find(t => t.id === tier);
       if (selectedTier && selectedTier.dishes && selectedTier.dishes.length > 0) {
         setAvailableDishes(selectedTier.dishes);
-        setDishSelectionCount(selectedTier.dishSelectionCount || 0);
+        
+        // Check if package has category-specific rules
+        if (selectedTier.dishSelectionRules && Object.keys(selectedTier.dishSelectionRules).length > 0) {
+          setDishSelectionRules(selectedTier.dishSelectionRules);
+          setDishSelectionCount(0);
+        } else if (selectedTier.dishSelectionCount && selectedTier.dishSelectionCount > 0) {
+          setDishSelectionCount(selectedTier.dishSelectionCount);
+          setDishSelectionRules(null);
+        } else {
+          setDishSelectionCount(0);
+          setDishSelectionRules(null);
+        }
+        
         // Clear previously selected dishes when changing to a new package
         setSelectedDishes([]);
+        setSelectedDishesByCategory({
+          appetizer: [],
+          main_course: [],
+          side_dish: [],
+          dessert: [],
+          beverage: []
+        });
       } else {
         setAvailableDishes([]);
         setDishSelectionCount(0);
+        setDishSelectionRules(null);
         setSelectedDishes([]);
+        setSelectedDishesByCategory({
+          appetizer: [],
+          main_course: [],
+          side_dish: [],
+          dessert: [],
+          beverage: []
+        });
       }
     }
   }, [tier, step, tiers]);
@@ -196,6 +232,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
           featured: pkg.isFeatured,
           dishes: pkg.dishes || [],
           dishSelectionCount: pkg.dishSelectionCount,
+          dishSelectionRules: pkg.dishSelectionRules,
           minPrice: pkg.minPrice,
           maxPrice: pkg.maxPrice,
         }));
@@ -254,10 +291,19 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   };
 
   const reset = () => {
-    setStep(1); setPkg(""); setTier(""); setSelectedDishes([]); setDetails({ date: "", guests: "", venue: "" });
+    setStep(1); setPkg(""); setTier(""); setSelectedDishes([]); 
+    setSelectedDishesByCategory({
+      appetizer: [],
+      main_course: [],
+      side_dish: [],
+      dessert: [],
+      beverage: []
+    });
+    setDetails({ date: "", guests: "", venue: "" });
     setInfo({ name: "", email: "", phone: "", notes: "" });
     setAvailableDishes([]);
     setDishSelectionCount(0);
+    setDishSelectionRules(null);
   };
 
   const close = (o: boolean) => {
@@ -282,7 +328,30 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
     }
 
     // Validate dish selection if required
-    if (dishSelectionCount > 0 && selectedDishes.length !== dishSelectionCount) {
+    if (dishSelectionRules) {
+      // Validate category-specific rules
+      const totalSelected = Object.values(selectedDishesByCategory).flat().length;
+      const totalRequired = Object.values(dishSelectionRules).reduce((sum, count) => sum + count, 0);
+      
+      if (totalSelected !== totalRequired) {
+        const missingCategories = Object.entries(dishSelectionRules)
+          .filter(([category, required]) => {
+            const selected = selectedDishesByCategory[category]?.length || 0;
+            return selected !== required;
+          })
+          .map(([category, required]) => {
+            const selected = selectedDishesByCategory[category]?.length || 0;
+            return `${category.replace('_', ' ')}: ${selected}/${required}`;
+          });
+        
+        toast({
+          title: "Incomplete Selection",
+          description: `Please complete your dish selection: ${missingCategories.join(', ')}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (dishSelectionCount > 0 && selectedDishes.length !== dishSelectionCount) {
       toast({
         title: "Error",
         description: `Please select exactly ${dishSelectionCount} dishes`,
@@ -303,32 +372,24 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
 
     setIsSubmitting(true);
     try {
-      // Calculate estimated price
-      const guestCount = parseInt(details.guests);
-      const pricePerGuest = selectedTier.minPrice || 0;
-      const estimatedPrice = guestCount * pricePerGuest;
-
-      // Get dish details for storage
-      const dishDetails = selectedDishes.map(dishId => {
-        const dish = availableDishes.find(d => d.id === dishId);
-        return dish ? { id: dish.id, name: dish.name, category: dish.category } : null;
-      }).filter(Boolean);
+      // Get dish IDs for storage
+      const allSelectedDishIds = dishSelectionRules 
+        ? Object.values(selectedDishesByCategory).flat()
+        : selectedDishes;
 
       await bookingService.create({
         customerName: info.name,
         customerEmail: info.email,
         customerPhone: info.phone,
         eventDate: details.date,
-        guestCount: guestCount,
+        guestCount: parseInt(details.guests),
         venue: details.venue || undefined,
         packageId: isNaN(parseInt(tier)) ? undefined : parseInt(tier),
         packageName: selectedPackage.title,
-        packagePrice: selectedTier.price, // Store the package price range
         tier: tierEnum,
         tierName: selectedTier.name,
-        selectedDishes: dishDetails.length > 0 ? dishDetails : undefined,
+        selectedDishes: allSelectedDishIds.length > 0 ? allSelectedDishIds : undefined,
         notes: info.notes || undefined,
-        estimatedPrice: estimatedPrice > 0 ? estimatedPrice : undefined,
       });
 
       toast({
@@ -457,8 +518,22 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                       {/* Price */}
                       <div className="text-sm text-primary mb-3">{t.price}</div>
                       
-                      {/* Dish Selection Count - PROMINENT */}
-                      {t.dishSelectionCount && t.dishSelectionCount > 0 && (
+                      {/* Dish Selection Count/Rules - PROMINENT */}
+                      {t.dishSelectionRules && Object.values(t.dishSelectionRules).some((count: number) => count > 0) ? (
+                        <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                          <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Dishes to Choose</div>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(t.dishSelectionRules).map(([category, count]: [string, any]) => 
+                              count > 0 && (
+                                <div key={category} className="flex items-center gap-1 text-xs">
+                                  <span className="font-bold text-primary">{count}</span>
+                                  <span className="text-foreground/70">{category.replace('_', ' ')}</span>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      ) : t.dishSelectionCount && t.dishSelectionCount > 0 && (
                         <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
                           <div className="flex items-center gap-2">
                             <span className="text-2xl font-bold text-primary">{t.dishSelectionCount}</span>
@@ -497,94 +572,233 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 Select your <em className="italic text-primary">dishes</em>.
               </h2>
               
-              {/* Clear Selection Counter */}
-              <div className="mb-6 p-4 rounded-lg bg-primary/10 border-2 border-primary/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-lg font-semibold text-foreground">
-                      Choose <span className="text-primary text-2xl font-bold">{dishSelectionCount}</span> dishes from the menu below
-                    </p>
-                    <p className="text-sm text-foreground/60 mt-1">
-                      {availableDishes.length} dishes available to choose from
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-primary">
-                      {selectedDishes.length}/{dishSelectionCount}
-                    </div>
-                    <div className="text-xs text-foreground/60 uppercase tracking-wider">Selected</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                {availableDishes.map((dish) => (
-                  <div
-                    key={dish.id}
-                    className={`relative text-left p-5 rounded-sm border-2 transition-all ${
-                      selectedDishes.includes(dish.id)
-                        ? "border-primary bg-card shadow-card"
-                        : "border-border bg-card"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <h3 className="font-display text-lg font-medium text-foreground">
-                          {dish.name}
-                        </h3>
-                        {dish.description && (
-                          <p className="text-sm text-foreground/70 mt-1 line-clamp-2">{dish.description}</p>
-                        )}
-                      </div>
-                      {selectedDishes.includes(dish.id) && (
-                        <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs ml-2">
-                          ✓
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between mt-3">
-                      <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs uppercase">
-                        {dish.category}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setViewingDish(dish);
-                            setIsDishModalOpen(true);
-                          }}
-                          className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-                          title="View details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (selectedDishes.includes(dish.id)) {
-                              setSelectedDishes(selectedDishes.filter(id => id !== dish.id));
-                            } else if (selectedDishes.length < dishSelectionCount) {
-                              setSelectedDishes([...selectedDishes, dish.id]);
-                            } else {
-                              toast({
-                                title: "Maximum reached",
-                                description: `You can only select ${dishSelectionCount} dishes`,
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                            selectedDishes.includes(dish.id)
-                              ? "bg-destructive/10 hover:bg-destructive/20 text-destructive"
-                              : "bg-primary hover:bg-primary/90 text-primary-foreground"
+              {/* Selection Counter - Category-based or Total */}
+              {dishSelectionRules && Object.keys(dishSelectionRules).length > 0 ? (
+                <div className="mb-6 p-4 rounded-lg bg-primary/10 border-2 border-primary/30">
+                  <p className="text-lg font-semibold text-foreground mb-3">
+                    Choose dishes by category
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {Object.entries(dishSelectionRules).map(([category, required]: [string, any]) => {
+                      const selected = selectedDishesByCategory[category]?.length || 0;
+                      const isComplete = selected === required;
+                      return (
+                        <div 
+                          key={category}
+                          className={`px-3 py-2 rounded-lg border-2 ${
+                            isComplete 
+                              ? 'bg-primary/20 border-primary' 
+                              : 'bg-background border-border'
                           }`}
                         >
-                          {selectedDishes.includes(dish.id) ? "Remove" : "Select"}
-                        </button>
+                          <div className="text-xs uppercase tracking-wider text-foreground/60 mb-1">
+                            {category.replace('_', ' ')}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-2xl font-bold ${isComplete ? 'text-primary' : 'text-foreground'}`}>
+                              {selected}/{required}
+                            </span>
+                            {isComplete && <span className="text-primary">✓</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-6 p-4 rounded-lg bg-primary/10 border-2 border-primary/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-lg font-semibold text-foreground">
+                        Choose <span className="text-primary text-2xl font-bold">{dishSelectionCount}</span> dishes from the menu below
+                      </p>
+                      <p className="text-sm text-foreground/60 mt-1">
+                        {availableDishes.length} dishes available to choose from
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-primary">
+                        {selectedDishes.length}/{dishSelectionCount}
                       </div>
+                      <div className="text-xs text-foreground/60 uppercase tracking-wider">Selected</div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+
+              {/* Dishes grouped by category */}
+              {dishSelectionRules && Object.keys(dishSelectionRules).length > 0 ? (
+                <div className="space-y-8">
+                  {Object.entries(dishSelectionRules).map(([category, required]: [string, any]) => {
+                    const categoryDishes = availableDishes.filter(d => d.category === category);
+                    const selectedInCategory = selectedDishesByCategory[category] || [];
+                    
+                    if (categoryDishes.length === 0) return null;
+                    
+                    return (
+                      <div key={category}>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="font-display text-xl text-foreground capitalize">
+                            {category.replace('_', ' ')}
+                          </h3>
+                          <span className="text-sm text-foreground/60">
+                            Select {required} {required === 1 ? 'dish' : 'dishes'}
+                          </span>
+                        </div>
+                        
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {categoryDishes.map((dish) => {
+                            const isSelected = selectedInCategory.includes(dish.id);
+                            const canSelect = selectedInCategory.length < required;
+                            
+                            return (
+                              <div
+                                key={dish.id}
+                                className={`relative text-left p-5 rounded-sm border-2 transition-all ${
+                                  isSelected
+                                    ? "border-primary bg-card shadow-card"
+                                    : "border-border bg-card"
+                                }`}
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1">
+                                    <h4 className="font-display text-lg font-medium text-foreground">
+                                      {dish.name}
+                                    </h4>
+                                    {dish.description && (
+                                      <p className="text-sm text-foreground/70 mt-1 line-clamp-2">{dish.description}</p>
+                                    )}
+                                  </div>
+                                  {isSelected && (
+                                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs ml-2">
+                                      ✓
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex items-center justify-between mt-3">
+                                  <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs uppercase">
+                                    {dish.category}
+                                  </span>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setViewingDish(dish);
+                                        setIsDishModalOpen(true);
+                                      }}
+                                      className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                                      title="View details"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        if (isSelected) {
+                                          setSelectedDishesByCategory({
+                                            ...selectedDishesByCategory,
+                                            [category]: selectedInCategory.filter(id => id !== dish.id)
+                                          });
+                                        } else if (canSelect) {
+                                          setSelectedDishesByCategory({
+                                            ...selectedDishesByCategory,
+                                            [category]: [...selectedInCategory, dish.id]
+                                          });
+                                        } else {
+                                          toast({
+                                            title: "Maximum reached",
+                                            description: `You can only select ${required} ${category.replace('_', ' ')} ${required === 1 ? 'dish' : 'dishes'}`,
+                                            variant: "destructive",
+                                          });
+                                        }
+                                      }}
+                                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                                        isSelected
+                                          ? "bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                                          : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                                      }`}
+                                    >
+                                      {isSelected ? "Remove" : "Select"}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {availableDishes.map((dish) => (
+                    <div
+                      key={dish.id}
+                      className={`relative text-left p-5 rounded-sm border-2 transition-all ${
+                        selectedDishes.includes(dish.id)
+                          ? "border-primary bg-card shadow-card"
+                          : "border-border bg-card"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <h3 className="font-display text-lg font-medium text-foreground">
+                            {dish.name}
+                          </h3>
+                          {dish.description && (
+                            <p className="text-sm text-foreground/70 mt-1 line-clamp-2">{dish.description}</p>
+                          )}
+                        </div>
+                        {selectedDishes.includes(dish.id) && (
+                          <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs ml-2">
+                            ✓
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="px-2 py-1 rounded bg-accent/10 text-accent text-xs uppercase">
+                          {dish.category}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewingDish(dish);
+                              setIsDishModalOpen(true);
+                            }}
+                            className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                            title="View details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (selectedDishes.includes(dish.id)) {
+                                setSelectedDishes(selectedDishes.filter(id => id !== dish.id));
+                              } else if (selectedDishes.length < dishSelectionCount) {
+                                setSelectedDishes([...selectedDishes, dish.id]);
+                              } else {
+                                toast({
+                                  title: "Maximum reached",
+                                  description: `You can only select ${dishSelectionCount} dishes`,
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                              selectedDishes.includes(dish.id)
+                                ? "bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                                : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                            }`}
+                          >
+                            {selectedDishes.includes(dish.id) ? "Remove" : "Select"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -667,9 +881,14 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-foreground">
                   <span><span className="text-muted-foreground">Event:</span> {packages.find(p => p.id === pkg)?.title}</span>
                   <span><span className="text-muted-foreground">Tier:</span> {tiers.find(t => t.id === tier)?.name}</span>
-                  {selectedDishes.length > 0 && (
-                    <span><span className="text-muted-foreground">Dishes:</span> {selectedDishes.length} selected</span>
-                  )}
+                  {(() => {
+                    const totalSelected = dishSelectionRules && Object.keys(dishSelectionRules).length > 0
+                      ? Object.values(selectedDishesByCategory).flat().length
+                      : selectedDishes.length;
+                    return totalSelected > 0 && (
+                      <span><span className="text-muted-foreground">Dishes:</span> {totalSelected} selected</span>
+                    );
+                  })()}
                   {details.date && <span><span className="text-muted-foreground">Date:</span> {details.date}</span>}
                   {details.guests && <span><span className="text-muted-foreground">Guests:</span> {details.guests}</span>}
                 </div>
@@ -687,6 +906,13 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 // Clear selected dishes when going back from dish selection step
                 if (step === 3 && dishSelectionCount > 0) {
                   setSelectedDishes([]);
+                  setSelectedDishesByCategory({
+                    appetizer: [],
+                    main_course: [],
+                    side_dish: [],
+                    dessert: [],
+                    beverage: []
+                  });
                 }
                 setStep(step - 1);
               }
@@ -718,7 +944,18 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
               disabled={
                 (step === 1 && !pkg) || 
                 (step === 2 && !tier) ||
-                (step === 3 && dishSelectionCount > 0 && selectedDishes.length !== dishSelectionCount)
+                (step === 3 && dishSelectionCount > 0 && (() => {
+                  if (dishSelectionRules && Object.keys(dishSelectionRules).length > 0) {
+                    // Check if all category requirements are met
+                    return Object.entries(dishSelectionRules).some(([category, required]: [string, any]) => {
+                      const selected = selectedDishesByCategory[category]?.length || 0;
+                      return selected !== required;
+                    });
+                  } else {
+                    // Check simple selection count
+                    return selectedDishes.length !== dishSelectionCount;
+                  }
+                })())
               }
               className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full gradient-warm text-primary-foreground shadow-soft hover:shadow-card transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
             >
@@ -779,25 +1016,58 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 <button
                   onClick={() => {
                     setIsDishModalOpen(false);
-                    if (selectedDishes.includes(viewingDish.id)) {
-                      setSelectedDishes(selectedDishes.filter(id => id !== viewingDish.id));
-                    } else if (selectedDishes.length < dishSelectionCount) {
-                      setSelectedDishes([...selectedDishes, viewingDish.id]);
+                    
+                    // Handle category-based selection
+                    if (dishSelectionRules && Object.keys(dishSelectionRules).length > 0) {
+                      const category = viewingDish.category;
+                      const selectedInCategory = selectedDishesByCategory[category] || [];
+                      const required = dishSelectionRules[category] || 0;
+                      const isSelected = selectedInCategory.includes(viewingDish.id);
+                      
+                      if (isSelected) {
+                        setSelectedDishesByCategory({
+                          ...selectedDishesByCategory,
+                          [category]: selectedInCategory.filter(id => id !== viewingDish.id)
+                        });
+                      } else if (selectedInCategory.length < required) {
+                        setSelectedDishesByCategory({
+                          ...selectedDishesByCategory,
+                          [category]: [...selectedInCategory, viewingDish.id]
+                        });
+                      } else {
+                        toast({
+                          title: "Maximum reached",
+                          description: `You can only select ${required} ${category.replace('_', ' ')} ${required === 1 ? 'dish' : 'dishes'}`,
+                          variant: "destructive",
+                        });
+                      }
                     } else {
-                      toast({
-                        title: "Maximum reached",
-                        description: `You can only select ${dishSelectionCount} dishes`,
-                        variant: "destructive",
-                      });
+                      // Handle simple selection
+                      if (selectedDishes.includes(viewingDish.id)) {
+                        setSelectedDishes(selectedDishes.filter(id => id !== viewingDish.id));
+                      } else if (selectedDishes.length < dishSelectionCount) {
+                        setSelectedDishes([...selectedDishes, viewingDish.id]);
+                      } else {
+                        toast({
+                          title: "Maximum reached",
+                          description: `You can only select ${dishSelectionCount} dishes`,
+                          variant: "destructive",
+                        });
+                      }
                     }
                   }}
                   className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    selectedDishes.includes(viewingDish.id)
+                    (dishSelectionRules && Object.keys(dishSelectionRules).length > 0
+                      ? (selectedDishesByCategory[viewingDish.category] || []).includes(viewingDish.id)
+                      : selectedDishes.includes(viewingDish.id))
                       ? "bg-destructive/10 hover:bg-destructive/20 text-destructive"
                       : "bg-primary hover:bg-primary/90 text-primary-foreground"
                   }`}
                 >
-                  {selectedDishes.includes(viewingDish.id) ? "Remove from Selection" : "Add to Selection"}
+                  {(dishSelectionRules && Object.keys(dishSelectionRules).length > 0
+                    ? (selectedDishesByCategory[viewingDish.category] || []).includes(viewingDish.id)
+                    : selectedDishes.includes(viewingDish.id))
+                    ? "Remove from Selection" : "Add to Selection"}
                 </button>
                 <button
                   onClick={() => setIsDishModalOpen(false)}

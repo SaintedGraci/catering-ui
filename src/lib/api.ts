@@ -231,6 +231,7 @@ export interface Package {
   maxPrice?: number;
   includes: string[];
   dishSelectionCount?: number;
+  dishSelectionRules?: Record<string, number>;
   dishes?: Dish[];
   isFeatured: boolean;
   isActive: boolean;
