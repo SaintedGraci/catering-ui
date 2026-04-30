@@ -503,7 +503,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                       <div className="text-sm text-primary mb-3">{t.price}</div>
                       
                       {/* Dish Selection Count/Rules - PROMINENT */}
-                      {t.dishSelectionRules && Object.values(t.dishSelectionRules).some((count: number) => count > 0) && (
+                      {t.dishSelectionRules && Object.values(t.dishSelectionRules).some((count: number) => count > 0) ? (
                         <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
                           <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">Dishes to Choose</div>
                           <div className="flex flex-wrap gap-2">
@@ -515,6 +515,12 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                 </div>
                               )
                             )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mb-4 p-3 rounded-lg bg-muted/50 border border-border">
+                          <div className="text-xs text-muted-foreground">
+                            No dish selection configured for this package
                           </div>
                         </div>
                       )}
@@ -692,6 +698,15 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 Tell us about the <em className="italic text-primary">day</em>.
               </h2>
               <p className="text-muted-foreground mb-8">A few quick details so we can check availability.</p>
+
+              {/* Show info message if package has no dish selection */}
+              {(!dishSelectionRules || !Object.values(dishSelectionRules).some(count => count > 0)) && (
+                <div className="mb-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <strong>Note:</strong> This package doesn't have dish selection configured yet. Our team will work with you to customize your menu.
+                  </p>
+                </div>
+              )}
 
               <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2">
                 <label className="block">
