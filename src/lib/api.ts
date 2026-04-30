@@ -226,9 +226,8 @@ export interface Package {
   name: string;
   description?: string;
   menuType: string;
-  priceRange: string;
-  minPrice?: number;
-  maxPrice?: number;
+  estimatedPrice: string;
+  goodForPax: number;
   includes: string[];
   dishSelectionRules?: Record<string, number>;
   dishes?: Dish[];
@@ -397,6 +396,7 @@ export const bookingService = {
     tierName: string;
     selectedDishes?: number[];
     notes?: string;
+    estimatedPrice?: number;
   }) =>
     apiPost<ApiResponse<Booking>>('/bookings', booking),
 

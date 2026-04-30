@@ -21,7 +21,8 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
     name: "",
     description: "",
     menuType: "wedding",
-    priceRange: "",
+    estimatedPrice: "",
+    goodForPax: "",
     includes: [] as string[],
     dishSelectionRules: {
       appetizer: 0,
@@ -51,7 +52,8 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         name: pkg.name,
         description: pkg.description || "",
         menuType: pkg.menuType,
-        priceRange: pkg.priceRange,
+        estimatedPrice: pkg.estimatedPrice || "",
+        goodForPax: pkg.goodForPax?.toString() || "",
         includes: pkg.includes || [],
         dishSelectionRules: pkg.dishSelectionRules || {
           appetizer: 0,
@@ -69,7 +71,8 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         name: "",
         description: "",
         menuType: "",
-        priceRange: "",
+        estimatedPrice: "",
+        goodForPax: "",
         includes: [],
         dishSelectionRules: {
           appetizer: 0,
@@ -133,7 +136,7 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.menuType || !formData.priceRange) {
+    if (!formData.name || !formData.menuType || !formData.estimatedPrice || !formData.goodForPax) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -162,7 +165,8 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         name: formData.name,
         description: formData.description || undefined,
         menuType: formData.menuType,
-        priceRange: formData.priceRange,
+        estimatedPrice: formData.estimatedPrice,
+        goodForPax: parseInt(formData.goodForPax),
         includes: formData.includes,
         dishSelectionRules: formData.dishSelectionRules,
         dishes: formData.selectedDishes,
@@ -250,16 +254,32 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
             </div>
 
             <div>
-              <Label htmlFor="priceRange">Price Range *</Label>
+              <Label htmlFor="estimatedPrice">Estimated Price *</Label>
               <Input
-                id="priceRange"
-                value={formData.priceRange}
-                onChange={(e) => setFormData({ ...formData, priceRange: e.target.value })}
-                placeholder="e.g., ₱850 – ₱1,500 / guest"
+                id="estimatedPrice"
+                value={formData.estimatedPrice}
+                onChange={(e) => setFormData({ ...formData, estimatedPrice: e.target.value })}
+                placeholder="e.g., ₱150 - ₱1000, ₱50,000"
                 required
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Display price for customers (e.g., ₱850 / guest or ₱850 – ₱1,500 / guest)
+                Total package price (e.g., ₱150 - ₱1000, ₱50,000)
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="goodForPax">Good For How Many Pax *</Label>
+              <Input
+                id="goodForPax"
+                type="number"
+                min="1"
+                value={formData.goodForPax}
+                onChange={(e) => setFormData({ ...formData, goodForPax: e.target.value })}
+                placeholder="e.g., 90, 50, 100"
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Number of people this package serves
               </p>
             </div>
 

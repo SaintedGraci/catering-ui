@@ -23,13 +23,11 @@ type Pkg = {
 type Tier = { 
   id: string; 
   name: string; 
-  price: string; 
+  pricePerGuest: number;
   includes: string[]; 
   featured?: boolean;
   dishes?: any[];
   dishSelectionRules?: Record<string, number>;
-  minPrice?: number;
-  maxPrice?: number;
 };
 
 const fallbackPackages: Pkg[] = [
@@ -222,13 +220,11 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
         const formattedTiers: Tier[] = dbTiers.map((pkg: Package) => ({
           id: pkg.id.toString(),
           name: pkg.name,
-          price: pkg.priceRange,
+          pricePerGuest: pkg.pricePerGuest,
           includes: pkg.includes,
           featured: pkg.isFeatured,
           dishes: pkg.dishes || [],
           dishSelectionRules: pkg.dishSelectionRules,
-          minPrice: pkg.minPrice,
-          maxPrice: pkg.maxPrice,
         }));
         setTiers(formattedTiers);
       } else {
@@ -361,12 +357,21 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
       // Get dish IDs for storage
       const allSelectedDishIds = Object.values(selectedDishesByCategory).flat();
 
+      // Calculate estimated price
+      const guestCount = parseInt(details.guests);
+      let estimatedPrice: number | undefined = undefined;
+      
+      if (selectedTier.minPrice && guestCount > 0) {
+        // Use minimum price for estimation
+        estimatedPrice = selectedTier.minPrice * guestCount;
+      }
+
       await bookingService.create({
         customerName: info.name,
         customerEmail: info.email,
         customerPhone: info.phone,
         eventDate: details.date,
-        guestCount: parseInt(details.guests),
+        guestCount: guestCount,
         venue: details.venue || undefined,
         packageId: isNaN(parseInt(tier)) ? undefined : parseInt(tier),
         packageName: selectedPackage.title,
@@ -374,6 +379,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
         tierName: selectedTier.name,
         selectedDishes: allSelectedDishIds.length > 0 ? allSelectedDishIds : undefined,
         notes: info.notes || undefined,
+        estimatedPrice: estimatedPrice,
       });
 
       toast({
