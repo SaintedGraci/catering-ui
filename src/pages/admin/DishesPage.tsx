@@ -178,56 +178,109 @@ const DishesPage = () => {
               <p className="text-foreground/60">No dishes found</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredDishes.map((dish) => (
                 <div
                   key={dish.id}
-                  className="bg-background rounded-xl p-4 border border-border hover:border-primary/50 transition-colors"
+                  className="group relative rounded-xl overflow-hidden border-2 border-border hover:border-primary/50 transition-all hover:shadow-2xl hover:scale-[1.02] duration-300"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-display text-lg font-medium text-foreground mb-1">
-                        {dish.name}
-                      </h3>
-                      <span className="inline-block px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium">
+                  {/* Dish Image - Full Cover */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    {dish.image ? (
+                      <img
+                        src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
+                        alt={dish.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                        <div className="text-center">
+                          <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-muted-foreground/10 flex items-center justify-center">
+                            <span className="text-4xl">🍽️</span>
+                          </div>
+                          <span className="text-muted-foreground/50 font-display text-sm">No Image</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                    
+                    {/* Availability Badge */}
+                    <div className="absolute top-3 right-3">
+                      <button
+                        onClick={() => handleToggleAvailability(dish)}
+                        className={`px-3 py-1.5 rounded-full backdrop-blur-md border-2 transition-all font-medium text-xs uppercase tracking-wider shadow-lg ${
+                          dish.isAvailable
+                            ? "bg-green-500/90 text-white border-green-400 hover:bg-green-600"
+                            : "bg-red-500/90 text-white border-red-400 hover:bg-red-600"
+                        }`}
+                        title={dish.isAvailable ? "Click to hide" : "Click to show"}
+                      >
+                        {dish.isAvailable ? (
+                          <span className="flex items-center gap-1.5">
+                            <Eye className="w-3 h-3" />
+                            Available
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            <EyeOff className="w-3 h-3" />
+                            Hidden
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                    
+                    {/* Category Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-block px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 text-xs font-semibold uppercase tracking-wider shadow-lg">
                         {dish.category.replace("_", " ")}
                       </span>
                     </div>
-                    <button
-                      onClick={() => handleToggleAvailability(dish)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        dish.isAvailable
-                          ? "bg-green-500/10 text-green-500 hover:bg-green-500/20"
-                          : "bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                      }`}
-                    >
-                      {dish.isAvailable ? (
-                        <Eye className="w-4 h-4" />
-                      ) : (
-                        <EyeOff className="w-4 h-4" />
-                      )}
-                    </button>
+                    
+                    {/* Content Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <div className="space-y-3">
+                        {/* Dish Name */}
+                        <h3 className="font-display text-2xl font-bold text-white drop-shadow-lg leading-tight">
+                          {dish.name}
+                        </h3>
+                        
+                        {/* Description */}
+                        {dish.description && (
+                          <p className="text-sm text-white/90 line-clamp-2 drop-shadow-md leading-relaxed">
+                            {dish.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-
-                  {dish.description && (
-                    <p className="text-sm text-foreground/70 mb-3 line-clamp-2">
-                      {dish.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-                    <button
-                      onClick={() => handleEdit(dish)}
-                      className="p-2 rounded-lg bg-foreground/5 hover:bg-foreground/10 text-foreground transition-colors"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(dish.id)}
-                      className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  
+                  {/* Action Buttons Footer */}
+                  <div className="bg-card border-t border-border p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        <span>ID: {dish.id}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(dish)}
+                          className="px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors font-medium text-sm flex items-center gap-2"
+                          title="Edit dish"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(dish.id)}
+                          className="p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors"
+                          title="Delete dish"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
