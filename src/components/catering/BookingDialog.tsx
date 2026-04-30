@@ -116,6 +116,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   const [dishSelectionCount, setDishSelectionCount] = useState<number>(0);
   const [viewingDish, setViewingDish] = useState<any | null>(null);
   const [isDishModalOpen, setIsDishModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -265,6 +266,9 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   };
 
   const submit = async () => {
+    // Prevent double submission
+    if (isSubmitting) return;
+    
     const selectedPackage = packages.find(p => p.id === pkg);
     const selectedTier = tiers.find(t => t.id === tier);
     
@@ -297,6 +301,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
       }
     }
 
+    setIsSubmitting(true);
     try {
       // Calculate estimated price
       const guestCount = parseInt(details.guests);
@@ -338,6 +343,8 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
         description: "Failed to submit booking. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -721,10 +728,10 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
           ) : (
             <button
               onClick={submit}
-              disabled={!info.name || !info.email}
+              disabled={!info.name || !info.email || isSubmitting}
               className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full gradient-warm text-primary-foreground shadow-soft hover:shadow-card transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Submit inquiry
+              {isSubmitting ? "Submitting..." : "Submit inquiry"}
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </button>
           )}
