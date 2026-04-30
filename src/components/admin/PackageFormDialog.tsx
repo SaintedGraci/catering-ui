@@ -24,6 +24,13 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
     priceRange: "",
     includes: [] as string[],
     dishSelectionCount: "",
+    dishSelectionRules: {
+      appetizer: 0,
+      main_course: 0,
+      side_dish: 0,
+      dessert: 0,
+      beverage: 0
+    },
     selectedDishes: [] as number[],
     isFeatured: false,
     isActive: true
@@ -48,6 +55,13 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         priceRange: pkg.priceRange,
         includes: pkg.includes || [],
         dishSelectionCount: pkg.dishSelectionCount?.toString() || "",
+        dishSelectionRules: pkg.dishSelectionRules || {
+          appetizer: 0,
+          main_course: 0,
+          side_dish: 0,
+          dessert: 0,
+          beverage: 0
+        },
         selectedDishes: pkg.dishes?.map(d => d.id) || [],
         isFeatured: pkg.isFeatured,
         isActive: pkg.isActive
@@ -60,6 +74,13 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         priceRange: "",
         includes: [],
         dishSelectionCount: "",
+        dishSelectionRules: {
+          appetizer: 0,
+          main_course: 0,
+          side_dish: 0,
+          dessert: 0,
+          beverage: 0
+        },
         selectedDishes: [],
         isFeatured: false,
         isActive: true
@@ -135,7 +156,8 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         priceRange: formData.priceRange,
         includes: formData.includes,
         dishSelectionCount: formData.dishSelectionCount ? parseInt(formData.dishSelectionCount) : undefined,
-        dishes: formData.selectedDishes, // Send array of dish IDs directly
+        dishSelectionRules: formData.dishSelectionRules,
+        dishes: formData.selectedDishes,
         isFeatured: formData.isFeatured,
         isActive: formData.isActive
       };
@@ -234,7 +256,117 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
             </div>
 
             <div>
-              <Label htmlFor="dishSelectionCount">Dish Selection Count</Label>
+              <Label htmlFor="dishSelectionCount">Dish Selection Count (Legacy)</Label>
+              <Input
+                id="dishSelectionCount"
+                type="number"
+                value={formData.dishSelectionCount}
+                onChange={(e) => setFormData({ ...formData, dishSelectionCount: e.target.value })}
+                placeholder="e.g., 3, 5, 8 (how many dishes customer can select)"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Legacy: Total number of dishes. Use Category Rules below for better control.
+              </p>
+            </div>
+
+            <div>
+              <Label>Category-Specific Dish Selection Rules</Label>
+              <p className="text-sm text-muted-foreground mb-3">
+                Set how many dishes customers can choose from each category
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                <div>
+                  <Label htmlFor="appetizer" className="text-xs">Appetizers</Label>
+                  <Input
+                    id="appetizer"
+                    type="number"
+                    min="0"
+                    value={formData.dishSelectionRules.appetizer}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      dishSelectionRules: {
+                        ...formData.dishSelectionRules,
+                        appetizer: parseInt(e.target.value) || 0
+                      }
+                    })}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="main_course" className="text-xs">Main Courses</Label>
+                  <Input
+                    id="main_course"
+                    type="number"
+                    min="0"
+                    value={formData.dishSelectionRules.main_course}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      dishSelectionRules: {
+                        ...formData.dishSelectionRules,
+                        main_course: parseInt(e.target.value) || 0
+                      }
+                    })}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="side_dish" className="text-xs">Side Dishes</Label>
+                  <Input
+                    id="side_dish"
+                    type="number"
+                    min="0"
+                    value={formData.dishSelectionRules.side_dish}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      dishSelectionRules: {
+                        ...formData.dishSelectionRules,
+                        side_dish: parseInt(e.target.value) || 0
+                      }
+                    })}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="dessert" className="text-xs">Desserts</Label>
+                  <Input
+                    id="dessert"
+                    type="number"
+                    min="0"
+                    value={formData.dishSelectionRules.dessert}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      dishSelectionRules: {
+                        ...formData.dishSelectionRules,
+                        dessert: parseInt(e.target.value) || 0
+                      }
+                    })}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="beverage" className="text-xs">Beverages</Label>
+                  <Input
+                    id="beverage"
+                    type="number"
+                    min="0"
+                    value={formData.dishSelectionRules.beverage}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      dishSelectionRules: {
+                        ...formData.dishSelectionRules,
+                        beverage: parseInt(e.target.value) || 0
+                      }
+                    })}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Example: 2 appetizers, 3 main courses, 1 beverage
+              </p>
+            </div>
+
+            <div>
               <Input
                 id="dishSelectionCount"
                 type="number"
