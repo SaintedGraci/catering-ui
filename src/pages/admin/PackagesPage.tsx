@@ -231,8 +231,11 @@ const PackagesPage = () => {
                       )}
                       <div className="flex flex-wrap gap-4 text-sm text-foreground/60 mb-3">
                         <span className="font-display text-lg font-medium text-foreground">
-                          {pkg.priceRange}
+                          {pkg.estimatedPrice ? `₱${pkg.estimatedPrice}` : 'Contact for pricing'}
                         </span>
+                        {pkg.goodForPax && (
+                          <span className="text-foreground/80">Good for {pkg.goodForPax} pax</span>
+                        )}
                         {pkg.dishSelectionRules && Object.values(pkg.dishSelectionRules).some(count => count > 0) && (
                           <span>
                             Customer selects: {Object.entries(pkg.dishSelectionRules)

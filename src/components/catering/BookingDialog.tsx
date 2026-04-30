@@ -23,7 +23,8 @@ type Pkg = {
 type Tier = { 
   id: string; 
   name: string; 
-  pricePerGuest: number;
+  estimatedPrice?: string;
+  goodForPax?: number;
   includes: string[]; 
   featured?: boolean;
   dishes?: any[];
@@ -41,20 +42,23 @@ const tiers: Tier[] = [
   {
     id: "essential",
     name: "Bahay Kubo",
-    price: "₱850 – ₱1,500 / guest",
+    estimatedPrice: "850-1500",
+    goodForPax: 50,
     includes: ["3-course Filipino menu", "Buffet or family-style", "Standard tableware", "Service team for 4 hrs"],
   },
   {
     id: "signature",
     name: "Salu-Salo",
-    price: "₱1,800 – ₱2,800 / guest",
+    estimatedPrice: "1800-2800",
+    goodForPax: 75,
     includes: ["5-course tasting menu", "Lechon centerpiece", "Premium tableware & linens", "Dedicated event lead", "Service team for 6 hrs"],
     featured: true,
   },
   {
     id: "bespoke",
     name: "Handaan ng Hari",
-    price: "From ₱4,200 / guest",
+    estimatedPrice: "4200+",
+    goodForPax: 100,
     includes: ["Custom heirloom menu", "Sommelier & barista service", "Styling & florals coordination", "Chef's table experience", "Unlimited service hours"],
   },
 ];
@@ -220,7 +224,8 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
         const formattedTiers: Tier[] = dbTiers.map((pkg: Package) => ({
           id: pkg.id.toString(),
           name: pkg.name,
-          pricePerGuest: pkg.pricePerGuest,
+          estimatedPrice: pkg.estimatedPrice,
+          goodForPax: pkg.goodForPax,
           includes: pkg.includes,
           featured: pkg.isFeatured,
           dishes: pkg.dishes || [],
@@ -233,20 +238,23 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
           {
             id: "essential",
             name: "Bahay Kubo",
-            price: "₱850 – ₱1,500 / guest",
+            estimatedPrice: "850-1500",
+            goodForPax: 50,
             includes: ["3-course Filipino menu", "Buffet or family-style", "Standard tableware", "Service team for 4 hrs"],
           },
           {
             id: "signature",
             name: "Salu-Salo",
-            price: "₱1,800 – ₱2,800 / guest",
+            estimatedPrice: "1800-2800",
+            goodForPax: 75,
             includes: ["5-course tasting menu", "Lechon centerpiece", "Premium tableware & linens", "Dedicated event lead", "Service team for 6 hrs"],
             featured: true,
           },
           {
             id: "bespoke",
             name: "Handaan ng Hari",
-            price: "From ₱4,200 / guest",
+            estimatedPrice: "4200+",
+            goodForPax: 100,
             includes: ["Custom heirloom menu", "Sommelier & barista service", "Styling & florals coordination", "Chef's table experience", "Unlimited service hours"],
           },
         ]);
@@ -342,36 +350,20 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
       }
     }
 
-    // Map tier to valid enum value based on price or default to 'signature'
-    let tierEnum: 'essential' | 'signature' | 'bespoke' = 'signature';
-    if (selectedTier.minPrice) {
-      if (selectedTier.minPrice < 500) {
-        tierEnum = 'essential';
-      } else if (selectedTier.minPrice > 1500) {
-        tierEnum = 'bespoke';
-      }
-    }
+    // Map tier to valid enum value - default to 'signature'
+    const tierEnum: 'essential' | 'signature' | 'bespoke' = 'signature';
 
     setIsSubmitting(true);
     try {
       // Get dish IDs for storage
       const allSelectedDishIds = Object.values(selectedDishesByCategory).flat();
 
-      // Calculate estimated price
-      const guestCount = parseInt(details.guests);
-      let estimatedPrice: number | undefined = undefined;
-      
-      if (selectedTier.minPrice && guestCount > 0) {
-        // Use minimum price for estimation
-        estimatedPrice = selectedTier.minPrice * guestCount;
-      }
-
       await bookingService.create({
         customerName: info.name,
         customerEmail: info.email,
         customerPhone: info.phone,
         eventDate: details.date,
-        guestCount: guestCount,
+        guestCount: parseInt(details.guests),
         venue: details.venue || undefined,
         packageId: isNaN(parseInt(tier)) ? undefined : parseInt(tier),
         packageName: selectedPackage.title,
@@ -379,7 +371,6 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
         tierName: selectedTier.name,
         selectedDishes: allSelectedDishIds.length > 0 ? allSelectedDishIds : undefined,
         notes: info.notes || undefined,
-        estimatedPrice: estimatedPrice,
       });
 
       toast({
@@ -506,7 +497,10 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                       <div className="font-display text-2xl text-foreground mb-1">{t.name}</div>
                       
                       {/* Price */}
-                      <div className="text-sm text-primary mb-3">{t.price}</div>
+                      <div className="text-sm text-primary mb-3">
+                        {t.estimatedPrice ? `₱${t.estimatedPrice}` : 'Contact for pricing'}
+                        {t.goodForPax && <span className="text-foreground/60 ml-2">• Good for {t.goodForPax} pax</span>}
+                      </div>
                       
                       {/* Dish Selection Count/Rules - PROMINENT */}
                       {t.dishSelectionRules && Object.values(t.dishSelectionRules).some((count: number) => count > 0) ? (
