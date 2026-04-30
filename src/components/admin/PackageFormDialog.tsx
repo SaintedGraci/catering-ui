@@ -23,7 +23,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
     menuType: "wedding",
     priceRange: "",
     includes: [] as string[],
-    dishSelectionCount: "",
     dishSelectionRules: {
       appetizer: 0,
       main_course: 0,
@@ -54,7 +53,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         menuType: pkg.menuType,
         priceRange: pkg.priceRange,
         includes: pkg.includes || [],
-        dishSelectionCount: pkg.dishSelectionCount?.toString() || "",
         dishSelectionRules: pkg.dishSelectionRules || {
           appetizer: 0,
           main_course: 0,
@@ -73,7 +71,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         menuType: "",
         priceRange: "",
         includes: [],
-        dishSelectionCount: "",
         dishSelectionRules: {
           appetizer: 0,
           main_course: 0,
@@ -146,6 +143,18 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
       return;
     }
 
+    // Check if at least one category has a selection count
+    const hasCategoryRules = Object.values(formData.dishSelectionRules).some(count => count > 0);
+    if (!hasCategoryRules) {
+      toast.error("Please set at least one category dish selection rule");
+      return;
+    }
+
+    if (formData.selectedDishes.length === 0) {
+      toast.error("Please select at least one available dish");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
@@ -155,7 +164,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         menuType: formData.menuType,
         priceRange: formData.priceRange,
         includes: formData.includes,
-        dishSelectionCount: formData.dishSelectionCount ? parseInt(formData.dishSelectionCount) : undefined,
         dishSelectionRules: formData.dishSelectionRules,
         dishes: formData.selectedDishes,
         isFeatured: formData.isFeatured,
@@ -256,21 +264,7 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
             </div>
 
             <div>
-              <Label htmlFor="dishSelectionCount">Dish Selection Count (Legacy)</Label>
-              <Input
-                id="dishSelectionCount"
-                type="number"
-                value={formData.dishSelectionCount}
-                onChange={(e) => setFormData({ ...formData, dishSelectionCount: e.target.value })}
-                placeholder="e.g., 3, 5, 8 (how many dishes customer can select)"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Legacy: Total number of dishes. Use Category Rules below for better control.
-              </p>
-            </div>
-
-            <div>
-              <Label>Category-Specific Dish Selection Rules</Label>
+              <Label>Category-Specific Dish Selection *</Label>
               <p className="text-sm text-muted-foreground mb-3">
                 Set how many dishes customers can choose from each category
               </p>
@@ -362,25 +356,12 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Example: 2 appetizers, 3 main courses, 1 beverage
+                Example: 2 appetizers, 3 main courses, 2 desserts, 1 beverage
               </p>
             </div>
 
             <div>
-              <Input
-                id="dishSelectionCount"
-                type="number"
-                value={formData.dishSelectionCount}
-                onChange={(e) => setFormData({ ...formData, dishSelectionCount: e.target.value })}
-                placeholder="e.g., 3, 5, 8 (how many dishes customer can select)"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Number of dishes customer can choose from the available dishes below
-              </p>
-            </div>
-
-            <div>
-              <Label>Available Dishes for This Package</Label>
+              <Label>Available Dishes for This Package *</Label>
               <p className="text-sm text-muted-foreground mb-3">
                 Select dishes that customers can choose from
               </p>

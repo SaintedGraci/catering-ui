@@ -230,7 +230,6 @@ export interface Package {
   minPrice?: number;
   maxPrice?: number;
   includes: string[];
-  dishSelectionCount?: number;
   dishSelectionRules?: Record<string, number>;
   dishes?: Dish[];
   isFeatured: boolean;

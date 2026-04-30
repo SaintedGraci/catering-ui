@@ -233,8 +233,13 @@ const PackagesPage = () => {
                         <span className="font-display text-lg font-medium text-foreground">
                           {pkg.priceRange}
                         </span>
-                        {pkg.dishSelectionCount && (
-                          <span>Customer selects {pkg.dishSelectionCount} dishes</span>
+                        {pkg.dishSelectionRules && Object.values(pkg.dishSelectionRules).some(count => count > 0) && (
+                          <span>
+                            Customer selects: {Object.entries(pkg.dishSelectionRules)
+                              .filter(([_, count]) => count > 0)
+                              .map(([category, count]) => `${count} ${category.replace('_', ' ')}`)
+                              .join(', ')}
+                          </span>
                         )}
                         {pkg.dishes && pkg.dishes.length > 0 && (
                           <span>{pkg.dishes.length} dishes available</span>
