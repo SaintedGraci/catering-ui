@@ -22,8 +22,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
     description: "",
     menuType: "wedding",
     priceRange: "",
-    minPrice: "",
-    maxPrice: "",
     includes: [] as string[],
     dishSelectionCount: "",
     selectedDishes: [] as number[],
@@ -48,8 +46,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         description: pkg.description || "",
         menuType: pkg.menuType,
         priceRange: pkg.priceRange,
-        minPrice: pkg.minPrice?.toString() || "",
-        maxPrice: pkg.maxPrice?.toString() || "",
         includes: pkg.includes || [],
         dishSelectionCount: pkg.dishSelectionCount?.toString() || "",
         selectedDishes: pkg.dishes?.map(d => d.id) || [],
@@ -62,8 +58,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         description: "",
         menuType: "",
         priceRange: "",
-        minPrice: "",
-        maxPrice: "",
         includes: [],
         dishSelectionCount: "",
         selectedDishes: [],
@@ -139,8 +133,6 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
         description: formData.description || undefined,
         menuType: formData.menuType,
         priceRange: formData.priceRange,
-        minPrice: formData.minPrice ? parseFloat(formData.minPrice) : undefined,
-        maxPrice: formData.maxPrice ? parseFloat(formData.maxPrice) : undefined,
         includes: formData.includes,
         dishSelectionCount: formData.dishSelectionCount ? parseInt(formData.dishSelectionCount) : undefined,
         dishes: formData.selectedDishes, // Send array of dish IDs directly
@@ -236,32 +228,9 @@ const PackageFormDialog = ({ open, onClose, package: pkg }: PackageFormDialogPro
                 placeholder="e.g., ₱850 – ₱1,500 / guest"
                 required
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="minPrice">Min Price (optional)</Label>
-                <Input
-                  id="minPrice"
-                  type="number"
-                  step="0.01"
-                  value={formData.minPrice}
-                  onChange={(e) => setFormData({ ...formData, minPrice: e.target.value })}
-                  placeholder="850.00"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="maxPrice">Max Price (optional)</Label>
-                <Input
-                  id="maxPrice"
-                  type="number"
-                  step="0.01"
-                  value={formData.maxPrice}
-                  onChange={(e) => setFormData({ ...formData, maxPrice: e.target.value })}
-                  placeholder="1500.00"
-                />
-              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Display price for customers (e.g., ₱850 / guest or ₱850 – ₱1,500 / guest)
+              </p>
             </div>
 
             <div>
