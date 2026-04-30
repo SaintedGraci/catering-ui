@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Search, Calendar, Eye, CheckCircle, XCircle, Clock, Mail, Phone, MapPin, Users, UtensilsCrossed, MessageSquare, X } from "lucide-react";
-import { bookingService, type Booking } from "@/lib/api";
+import { bookingService, dishService, type Booking, type Dish } from "@/lib/api";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ const BookingsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [selectedDishDetails, setSelectedDishDetails] = useState<Dish[]>([]);
 
   useEffect(() => {
     document.title = "Bookings — Sampaguita & Saro Admin";
@@ -115,9 +116,26 @@ const BookingsPage = () => {
     return icons[status] || <Clock className="w-4 h-4" />;
   };
 
-  const handleViewDetails = (booking: Booking) => {
+  const handleViewDetails = async (booking: Booking) => {
     setSelectedBooking(booking);
     setIsDetailDialogOpen(true);
+    
+    // Fetch dish details if there are selected dishes
+    if (booking.selectedDishes && booking.selectedDishes.length > 0) {
+      try {
+        const dishesResponse = await dishService.getAll();
+        const allDishes = dishesResponse.data || [];
+        const bookingDishes = allDishes.filter(dish => 
+          booking.selectedDishes?.includes(dish.id)
+        );
+        setSelectedDishDetails(bookingDishes);
+      } catch (error) {
+        console.error("Failed to fetch dish details:", error);
+        setSelectedDishDetails([]);
+      }
+    } else {
+      setSelectedDishDetails([]);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -342,15 +360,6 @@ const BookingsPage = () => {
                         {selectedBooking.customerPhone}
                       </a>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                        Address
-                      </p>
-                      <p className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0" />
-                        <span>{selectedBooking.customerAddress || "Not provided"}</span>
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -377,33 +386,37 @@ const BookingsPage = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      Event Time
-                    </p>
-                    <p className="font-medium">{selectedBooking.eventTime || "Not specified"}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                       Number of Guests
                     </p>
                     <p className="font-medium text-lg">{selectedBooking.guestCount} guests</p>
                   </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      Booking Date
+                    </p>
+                    <p className="font-medium text-sm">
+                      {new Date(selectedBooking.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                    Event Location
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0" />
-                    <span>{selectedBooking.eventLocation || "Not provided"}</span>
-                  </p>
-                </div>
+                {selectedBooking.venue && (
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      Venue / Location
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 mt-1 text-muted-foreground flex-shrink-0" />
+                      <span>{selectedBooking.venue}</span>
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Package Information */}
               <div className="bg-muted/30 rounded-xl p-6 space-y-4">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                   <UtensilsCrossed className="w-5 h-5 text-primary" />
-                  Package & Pricing
+                  Package & Tier
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
@@ -419,30 +432,16 @@ const BookingsPage = () => {
                     <p className="font-medium">{selectedBooking.tierName}</p>
                   </div>
                 </div>
-                {selectedBooking.packagePrice && (
+                {selectedBooking.estimatedPrice && (
                   <div className="pt-4 border-t border-border">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                      Package Price
+                      Estimated Total Price
                     </p>
-                    <p className="font-semibold text-lg text-foreground">
-                      {selectedBooking.packagePrice}
-                    </p>
-                  </div>
-                )}
-                <div className="pt-4 border-t border-border">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                    Estimated Total Price
-                  </p>
-                  {selectedBooking.estimatedPrice ? (
                     <p className="font-bold text-2xl text-primary">
                       {formatCurrency(selectedBooking.estimatedPrice)}
                     </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground italic">
-                      Price not calculated for this booking
-                    </p>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Selected Dishes */}
@@ -452,38 +451,64 @@ const BookingsPage = () => {
                     <UtensilsCrossed className="w-5 h-5 text-primary" />
                     Selected Dishes ({selectedBooking.selectedDishes.length})
                   </h3>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {selectedBooking.selectedDishes.map((dish: any, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border"
-                      >
-                        <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          {typeof dish === 'object' && dish.name ? (
-                            <>
-                              <p className="font-medium truncate">{dish.name}</p>
-                              <p className="text-xs text-muted-foreground">{dish.category}</p>
-                            </>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">Dish ID: {dish}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  
+                  {selectedDishDetails.length > 0 ? (
+                    <div className="space-y-4">
+                      {/* Group dishes by category */}
+                      {['appetizer', 'main_course', 'side_dish', 'dessert', 'beverage'].map(category => {
+                        const categoryDishes = selectedDishDetails.filter(dish => dish.category === category);
+                        if (categoryDishes.length === 0) return null;
+                        
+                        return (
+                          <div key={category}>
+                            <h4 className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
+                              {category.replace('_', ' ')} ({categoryDishes.length})
+                            </h4>
+                            <div className="grid md:grid-cols-2 gap-3">
+                              {categoryDishes.map((dish) => (
+                                <div
+                                  key={dish.id}
+                                  className="flex items-start gap-3 p-3 bg-background rounded-lg border border-border"
+                                >
+                                  {dish.image && (
+                                    <img
+                                      src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL}${dish.image}`}
+                                      alt={dish.name}
+                                      className="w-12 h-12 rounded object-cover flex-shrink-0"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium">{dish.name}</p>
+                                    {dish.description && (
+                                      <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                        {dish.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-muted-foreground">Loading dish details...</p>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Special Requests */}
-              {selectedBooking.specialRequests && (
+              {/* Notes / Special Requests */}
+              {selectedBooking.notes && (
                 <div className="bg-muted/30 rounded-xl p-6 space-y-4">
                   <h3 className="font-semibold text-lg flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-primary" />
-                    Special Requests
+                    Notes / Special Requests
                   </h3>
                   <p className="text-foreground/80 whitespace-pre-wrap">
-                    {selectedBooking.specialRequests}
+                    {selectedBooking.notes}
                   </p>
                 </div>
               )}
