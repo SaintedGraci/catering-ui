@@ -129,6 +129,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   const [isFinalConfirmModalOpen, setIsFinalConfirmModalOpen] = useState(false);
   const [currentCategoryModal, setCurrentCategoryModal] = useState<string | null>(null);
   const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (open) {
@@ -305,6 +306,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
     setInfo({ name: "", email: "", phone: "", notes: "" });
     setAvailableDishes([]);
     setDishSelectionRules(null);
+    setValidationErrors({});
   };
 
   const close = (o: boolean) => {
@@ -312,9 +314,62 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
     if (!o) setTimeout(reset, 300);
   };
 
+  // Validation helper functions
+  const validateField = (field: string, value: string): string | null => {
+    switch (field) {
+      case 'customerName':
+        if (!value || value.length < 2) return 'Name must be at least 2 characters';
+        if (value.length > 200) return 'Name cannot exceed 200 characters';
+        return null;
+      case 'customerEmail':
+        if (!value) return 'Email is required';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) return 'Please provide a valid email address';
+        return null;
+      case 'customerPhone':
+        if (!value) return 'Phone number is required';
+        const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+        if (!phoneRegex.test(value)) return 'Please provide a valid phone number';
+        if (value.length < 7) return 'Phone number must be at least 7 characters';
+        if (value.length > 20) return 'Phone number cannot exceed 20 characters';
+        return null;
+      case 'eventDate':
+        if (!value) return 'Event date is required';
+        return null;
+      case 'guestCount':
+        if (!value) return 'Guest count is required';
+        const count = parseInt(value);
+        if (isNaN(count) || count < 1) return 'Guest count must be at least 1';
+        if (count > 10000) return 'Guest count cannot exceed 10,000';
+        return null;
+      default:
+        return null;
+    }
+  };
+
+  const handleFieldChange = (field: string, value: string) => {
+    // Update the field value
+    if (field === 'customerName' || field === 'customerEmail' || field === 'customerPhone') {
+      setInfo({ ...info, [field.replace('customer', '').toLowerCase()]: value });
+    } else if (field === 'eventDate' || field === 'guestCount') {
+      const key = field === 'eventDate' ? 'date' : 'guests';
+      setDetails({ ...details, [key]: value });
+    }
+
+    // Clear validation error for this field if it exists
+    if (validationErrors[field]) {
+      const newErrors = { ...validationErrors };
+      delete newErrors[field];
+      setValidationErrors(newErrors);
+    }
+  };
+
   const submit = async () => {
     // Prevent double submission
     if (isSubmitting) return;
+    
+    // Clear previous validation errors
+    setValidationErrors({});
     
     const selectedPackage = packages.find(p => p.id === pkg);
     const selectedTier = tiers.find(t => t.id === tier);
@@ -382,19 +437,41 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
         description: `Your ${selectedTier.name} ${selectedPackage.title} request is in. We'll respond within 1 business day.`,
       });
       close(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Booking error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit booking. Please try again.",
-        variant: "destructive",
-      });
+      
+      // Parse validation errors from API response
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const errors: Record<string, string> = {};
+        error.response.data.errors.forEach((err: any) => {
+          if (err.field && err.message) {
+            errors[err.field] = err.message;
+          }
+        });
+        setValidationErrors(errors);
+        
+        // Show first error in toast
+        const firstError = error.response.data.errors[0];
+        toast({
+          title: "Validation Error",
+          description: firstError.message || "Please check your input and try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.response?.data?.message || "Failed to submit booking. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const inputCls = "w-full bg-transparent border-b border-border focus:border-primary outline-none py-3 text-foreground placeholder:text-muted-foreground transition-colors";
+  const inputCls = "w-full bg-transparent border-b focus:border-primary outline-none py-3 text-foreground placeholder:text-muted-foreground transition-colors";
+  const inputErrorCls = "w-full bg-transparent border-b border-destructive focus:border-destructive outline-none py-3 text-foreground placeholder:text-muted-foreground transition-colors";
+  const inputSuccessCls = "w-full bg-transparent border-b border-green-500 focus:border-green-600 outline-none py-3 text-foreground placeholder:text-muted-foreground transition-colors";
 
   return (
     <Dialog open={open} onOpenChange={close}>
@@ -694,12 +771,50 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
 
               <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2">
                 <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Event date</span>
-                  <input type="date" value={details.date} onChange={(e) => setDetails({ ...details, date: e.target.value })} className={inputCls} />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Event date *</span>
+                  <input 
+                    type="date" 
+                    value={details.date} 
+                    onChange={(e) => handleFieldChange('eventDate', e.target.value)}
+                    onBlur={(e) => {
+                      const error = validateField('eventDate', e.target.value);
+                      if (error) {
+                        setValidationErrors({ ...validationErrors, eventDate: error });
+                      }
+                    }}
+                    className={
+                      validationErrors.eventDate ? inputErrorCls :
+                      details.date && !validateField('eventDate', details.date) ? inputSuccessCls :
+                      inputCls
+                    }
+                  />
+                  {validationErrors.eventDate && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.eventDate}</p>
+                  )}
                 </label>
                 <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Guest count</span>
-                  <input type="number" min={1} value={details.guests} onChange={(e) => setDetails({ ...details, guests: e.target.value })} className={inputCls} placeholder="e.g. 80" />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Guest count *</span>
+                  <input 
+                    type="number" 
+                    min={1} 
+                    value={details.guests} 
+                    onChange={(e) => handleFieldChange('guestCount', e.target.value)}
+                    onBlur={(e) => {
+                      const error = validateField('guestCount', e.target.value);
+                      if (error) {
+                        setValidationErrors({ ...validationErrors, guestCount: error });
+                      }
+                    }}
+                    className={
+                      validationErrors.guestCount ? inputErrorCls :
+                      details.guests && !validateField('guestCount', details.guests) ? inputSuccessCls :
+                      inputCls
+                    }
+                    placeholder="e.g. 80" 
+                  />
+                  {validationErrors.guestCount && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.guestCount}</p>
+                  )}
                 </label>
                 <label className="block sm:col-span-2">
                   <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Venue or location</span>
@@ -718,12 +833,50 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
 
               <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2">
                 <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Event date</span>
-                  <input type="date" value={details.date} onChange={(e) => setDetails({ ...details, date: e.target.value })} className={inputCls} />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Event date *</span>
+                  <input 
+                    type="date" 
+                    value={details.date} 
+                    onChange={(e) => handleFieldChange('eventDate', e.target.value)}
+                    onBlur={(e) => {
+                      const error = validateField('eventDate', e.target.value);
+                      if (error) {
+                        setValidationErrors({ ...validationErrors, eventDate: error });
+                      }
+                    }}
+                    className={
+                      validationErrors.eventDate ? inputErrorCls :
+                      details.date && !validateField('eventDate', details.date) ? inputSuccessCls :
+                      inputCls
+                    }
+                  />
+                  {validationErrors.eventDate && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.eventDate}</p>
+                  )}
                 </label>
                 <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Guest count</span>
-                  <input type="number" min={1} value={details.guests} onChange={(e) => setDetails({ ...details, guests: e.target.value })} className={inputCls} placeholder="e.g. 80" />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Guest count *</span>
+                  <input 
+                    type="number" 
+                    min={1} 
+                    value={details.guests} 
+                    onChange={(e) => handleFieldChange('guestCount', e.target.value)}
+                    onBlur={(e) => {
+                      const error = validateField('guestCount', e.target.value);
+                      if (error) {
+                        setValidationErrors({ ...validationErrors, guestCount: error });
+                      }
+                    }}
+                    className={
+                      validationErrors.guestCount ? inputErrorCls :
+                      details.guests && !validateField('guestCount', details.guests) ? inputSuccessCls :
+                      inputCls
+                    }
+                    placeholder="e.g. 80" 
+                  />
+                  {validationErrors.guestCount && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.guestCount}</p>
+                  )}
                 </label>
                 <label className="block sm:col-span-2">
                   <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Venue or location</span>
@@ -742,16 +895,72 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
 
               <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2">
                 <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Full name</span>
-                  <input value={info.name} onChange={(e) => setInfo({ ...info, name: e.target.value })} className={inputCls} placeholder="Your name" />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Full name *</span>
+                  <input 
+                    value={info.name} 
+                    onChange={(e) => handleFieldChange('customerName', e.target.value)}
+                    onBlur={(e) => {
+                      const error = validateField('customerName', e.target.value);
+                      if (error) {
+                        setValidationErrors({ ...validationErrors, customerName: error });
+                      }
+                    }}
+                    className={
+                      validationErrors.customerName ? inputErrorCls :
+                      info.name && !validateField('customerName', info.name) ? inputSuccessCls :
+                      inputCls
+                    }
+                    placeholder="Your name" 
+                  />
+                  {validationErrors.customerName && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.customerName}</p>
+                  )}
                 </label>
                 <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Email</span>
-                  <input type="email" value={info.email} onChange={(e) => setInfo({ ...info, email: e.target.value })} className={inputCls} placeholder="you@email.com" />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Email *</span>
+                  <input 
+                    type="email" 
+                    value={info.email} 
+                    onChange={(e) => handleFieldChange('customerEmail', e.target.value)}
+                    onBlur={(e) => {
+                      const error = validateField('customerEmail', e.target.value);
+                      if (error) {
+                        setValidationErrors({ ...validationErrors, customerEmail: error });
+                      }
+                    }}
+                    className={
+                      validationErrors.customerEmail ? inputErrorCls :
+                      info.email && !validateField('customerEmail', info.email) ? inputSuccessCls :
+                      inputCls
+                    }
+                    placeholder="you@email.com" 
+                  />
+                  {validationErrors.customerEmail && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.customerEmail}</p>
+                  )}
                 </label>
                 <label className="block sm:col-span-2">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Phone</span>
-                  <input type="tel" value={info.phone} onChange={(e) => setInfo({ ...info, phone: e.target.value })} className={inputCls} placeholder="+1 (555) 000-0000" />
+                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Phone *</span>
+                  <input 
+                    type="tel" 
+                    value={info.phone} 
+                    onChange={(e) => handleFieldChange('customerPhone', e.target.value)}
+                    onBlur={(e) => {
+                      const error = validateField('customerPhone', e.target.value);
+                      if (error) {
+                        setValidationErrors({ ...validationErrors, customerPhone: error });
+                      }
+                    }}
+                    className={
+                      validationErrors.customerPhone ? inputErrorCls :
+                      info.phone && !validateField('customerPhone', info.phone) ? inputSuccessCls :
+                      inputCls
+                    }
+                    placeholder="+1 (555) 000-0000 (min. 7 characters)" 
+                  />
+                  {validationErrors.customerPhone && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.customerPhone}</p>
+                  )}
                 </label>
                 <label className="block sm:col-span-2 mt-2">
                   <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Anything we should know?</span>
