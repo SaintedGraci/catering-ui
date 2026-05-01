@@ -721,7 +721,6 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                     {isSelected ? '✓ Selected' : 'Tap to select'}
                                   </span>
                                 </div>
-                                </div>
                               </div>
                             </div>
                           );
