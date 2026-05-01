@@ -6,11 +6,24 @@ import Gallery from "@/components/catering/Gallery";
 import Testimonials from "@/components/catering/Testimonials";
 import Footer from "@/components/catering/Footer";
 import { BookingProvider } from "@/components/catering/BookingProvider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { settingsService, type Settings } from "@/lib/api";
 
 const Index = () => {
+  const [settings, setSettings] = useState<Settings | null>(null);
+
   useEffect(() => {
-    document.title = "Sampaguita & Saro — Filipino Catering for Unforgettable Handaan";
+    settingsService.get().then(res => {
+      if (res.data) setSettings(res.data);
+    }).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const businessName = settings?.websiteName || settings?.businessName || "Sampaguita & Saro";
+    const metaTitle = settings?.metaTitle || `${businessName} — Filipino Catering for Unforgettable Handaan`;
+    const metaDescription = settings?.metaDescription || `Heirloom Filipino catering for kasalan, corporate handaan and intimate boodle dinners. Lechon, kare-kare, kakanin and more. Book ${businessName}.`;
+
+    document.title = metaTitle;
     const meta =
       document.querySelector('meta[name="description"]') ??
       (() => {
@@ -19,11 +32,8 @@ const Index = () => {
         document.head.appendChild(m);
         return m;
       })();
-    meta.setAttribute(
-      "content",
-      "Heirloom Filipino catering for kasalan, corporate handaan and intimate boodle dinners. Lechon, kare-kare, kakanin and more. Book Sampaguita & Saro."
-    );
-  }, []);
+    meta.setAttribute("content", metaDescription);
+  }, [settings]);
 
   return (
     <BookingProvider>

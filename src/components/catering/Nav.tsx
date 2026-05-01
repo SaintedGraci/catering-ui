@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useBooking } from "./BookingProvider";
+import { settingsService, type Settings } from "@/lib/api";
 
 const links = [
   { href: "#menus", label: "Menus" },
@@ -13,6 +14,13 @@ const Nav = () => {
   const { open } = useBooking();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [settings, setSettings] = useState<Settings | null>(null);
+
+  useEffect(() => {
+    settingsService.get().then(res => {
+      if (res.data) setSettings(res.data);
+    }).catch(console.error);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -42,7 +50,7 @@ const Nav = () => {
           onClick={() => setMobileOpen(false)}
           className="font-display text-2xl tracking-tight text-foreground"
         >
-          Sampaguita <span className="text-primary">&amp;</span> Saro
+          {settings?.websiteName || settings?.businessName || "Sampaguita & Saro"}
         </a>
 
         <nav className="hidden md:flex items-center gap-10 text-sm tracking-wide">

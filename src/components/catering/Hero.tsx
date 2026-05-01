@@ -2,6 +2,8 @@ import heroSpread from "@/assets/hero-spread.jpg";
 import menuPrivate from "@/assets/menu-private.jpg";
 import { useBooking } from "./BookingProvider";
 import { ArrowUpRight, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { settingsService, type Settings } from "@/lib/api";
 
 const marqueeWords = [
   "Lechon",
@@ -18,6 +20,19 @@ const marqueeWords = [
 
 const Hero = () => {
   const { open } = useBooking();
+  const [settings, setSettings] = useState<Settings | null>(null);
+
+  useEffect(() => {
+    settingsService.get().then(res => {
+      if (res.data) setSettings(res.data);
+    }).catch(console.error);
+  }, []);
+
+  const businessName = settings?.websiteName || settings?.businessName || "Sampaguita & Saro";
+  const heroTitle = settings?.heroTitle || "Authentic Filipino Catering";
+  const heroSubtitle = settings?.heroSubtitle || `From lechon centerpieces to chef-led boodle dinners — ${businessName} brings heirloom Filipino menus, hand-plated with kalinga, to every salu-salo.`;
+  const heroCtaText = settings?.heroCtaText || "Book Your Event";
+
   return (
     <section
       id="top"
@@ -53,35 +68,15 @@ const Hero = () => {
 
         {/* Massive headline */}
         <h1 className="reveal reveal-delay-1 font-display font-medium text-[clamp(3.5rem,11vw,10rem)] leading-[0.88] tracking-[-0.04em] text-foreground text-balance max-w-[18ch]">
-          Heirloom <span className="italic font-light text-gradient-warm">Filipino</span> feasts,
-          <br className="hidden md:block" />
-          <span className="inline-flex items-baseline gap-4 flex-wrap">
-            plated for
-            <span className="relative inline-block">
-              <span className="italic font-light">today.</span>
-              <svg
-                aria-hidden
-                viewBox="0 0 200 12"
-                className="absolute -bottom-2 left-0 w-full text-primary"
-                preserveAspectRatio="none"
-              >
-                <path
-                  d="M2 8 Q 50 2, 100 6 T 198 6"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </span>
-          </span>
+          {heroTitle.split(' ').slice(0, -1).join(' ')}{' '}
+          <span className="italic font-light text-gradient-warm">{heroTitle.split(' ').slice(-1)}</span>
         </h1>
 
         {/* Lower row: copy + image collage */}
         <div className="mt-16 grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
           <div className="lg:col-span-5 reveal reveal-delay-2">
             <p className="text-lg lg:text-xl text-foreground/75 leading-relaxed text-pretty max-w-md">
-              From <em className="text-primary not-italic font-medium">lechon centerpieces</em> to chef-led boodle dinners — Sampaguita &amp; Saro brings heirloom Filipino menus, hand-plated with kalinga, to every salu-salo.
+              {heroSubtitle}
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -89,7 +84,7 @@ const Hero = () => {
                 onClick={open}
                 className="group relative inline-flex items-center gap-3 pl-7 pr-3 py-3 rounded-full bg-foreground text-background overflow-hidden transition-all hover:shadow-glow"
               >
-                <span className="font-medium tracking-wide relative z-10">Book your event</span>
+                <span className="font-medium tracking-wide relative z-10">{heroCtaText}</span>
                 <span className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-background text-foreground transition-transform group-hover:rotate-45">
                   <ArrowUpRight className="w-4 h-4" />
                 </span>

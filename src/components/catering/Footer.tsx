@@ -1,8 +1,24 @@
 import { useBooking } from "./BookingProvider";
 import { ArrowUpRight, Instagram, Facebook, Mail, Phone } from "lucide-react";
+import { useEffect, useState } from "react";
+import { settingsService, type Settings } from "@/lib/api";
 
 const Footer = () => {
   const { open } = useBooking();
+  const [settings, setSettings] = useState<Settings | null>(null);
+
+  useEffect(() => {
+    settingsService.get().then(res => {
+      if (res.data) setSettings(res.data);
+    }).catch(console.error);
+  }, []);
+
+  const businessName = settings?.websiteName || settings?.businessName || "Sampaguita & Saro";
+  const description = settings?.description || "Heirloom Filipino catering for kasalan, corporate handaan and intimate boodle dinners across Metro Manila & beyond.";
+  const phone = settings?.phone || "+63 917 555 0142";
+  const email = settings?.email || "kumain@sampaguitasaro.ph";
+  const address = settings?.address || "Studio · 14 Sampaguita Lane,\nQuezon City, Metro Manila";
+
   return (
     <footer className="relative gradient-ink text-background overflow-hidden grain">
       <div
@@ -40,22 +56,43 @@ const Footer = () => {
       <div className="container relative border-t border-background/10 pt-14 pb-12 grid lg:grid-cols-12 gap-10">
         <div className="lg:col-span-5">
           <div className="font-display text-3xl">
-            Sampaguita <span className="text-primary-glow italic">&amp;</span> Saro
+            {businessName}
           </div>
           <p className="mt-4 max-w-sm text-background/60 text-sm leading-relaxed">
-            Heirloom Filipino catering for kasalan, corporate handaan and intimate boodle dinners across Metro Manila &amp; beyond.
+            {description}
           </p>
           <div className="mt-8 flex items-center gap-3">
-            {[Instagram, Facebook, Mail].map((Icon, i) => (
+            {settings?.instagramUrl && (
               <a
-                key={i}
-                href="#"
-                aria-label="Social link"
+                href={settings.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
                 className="w-10 h-10 rounded-full border border-background/20 flex items-center justify-center hover:bg-background hover:text-foreground transition-colors"
               >
-                <Icon className="w-4 h-4" />
+                <Instagram className="w-4 h-4" />
               </a>
-            ))}
+            )}
+            {settings?.facebookUrl && (
+              <a
+                href={settings.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="w-10 h-10 rounded-full border border-background/20 flex items-center justify-center hover:bg-background hover:text-foreground transition-colors"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+            )}
+            {email && (
+              <a
+                href={`mailto:${email}`}
+                aria-label="Email"
+                className="w-10 h-10 rounded-full border border-background/20 flex items-center justify-center hover:bg-background hover:text-foreground transition-colors"
+              >
+                <Mail className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </div>
 
@@ -95,25 +132,34 @@ const Footer = () => {
             Get in touch
           </p>
           <ul className="space-y-3 text-sm">
-            <li className="flex items-center gap-3 text-background/80">
-              <Phone className="w-4 h-4 text-primary-glow" />
-              +63 917 555 0142
-            </li>
-            <li className="flex items-center gap-3 text-background/80">
-              <Mail className="w-4 h-4 text-primary-glow" />
-              kumain@sampaguitasaro.ph
-            </li>
-            <li className="text-background/60 text-xs leading-relaxed mt-4">
-              Studio · 14 Sampaguita Lane,
-              <br />
-              Quezon City, Metro Manila
-            </li>
+            {phone && (
+              <li className="flex items-center gap-3 text-background/80">
+                <Phone className="w-4 h-4 text-primary-glow" />
+                {phone}
+              </li>
+            )}
+            {email && (
+              <li className="flex items-center gap-3 text-background/80">
+                <Mail className="w-4 h-4 text-primary-glow" />
+                {email}
+              </li>
+            )}
+            {address && (
+              <li className="text-background/60 text-xs leading-relaxed mt-4">
+                {address.split('\n').map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i < address.split('\n').length - 1 && <br />}
+                  </span>
+                ))}
+              </li>
+            )}
           </ul>
         </div>
       </div>
 
       <div className="container relative border-t border-background/10 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-background/50 font-mono tracking-wide">
-        <span>© {new Date().getFullYear()} Sampaguita &amp; Saro Catering Co.</span>
+        <span>© {new Date().getFullYear()} {businessName}</span>
         <span>Made with kalinga in Manila ✦</span>
       </div>
     </footer>
