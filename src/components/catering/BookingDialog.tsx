@@ -552,192 +552,78 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
 
           {step === 3 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0) && availableDishes.length > 0 && (
             <div className="reveal">
-              <h2 className="font-display text-3xl sm:text-4xl text-foreground text-balance mb-2">
-                Select your <em className="italic text-primary">dishes</em>.
-              </h2>
-              <p className="text-muted-foreground mb-6">Tap categories below to jump to each section</p>
-              
-              {/* Sticky Category Navigation - Mobile Optimized */}
-              <div className="sticky top-0 z-20 -mx-6 sm:-mx-10 px-6 sm:px-10 py-4 bg-background/95 backdrop-blur-sm border-y border-border mb-6">
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="text-center max-w-2xl mx-auto py-12">
+                <h2 className="font-display text-3xl sm:text-4xl text-foreground text-balance mb-4">
+                  Let's choose your <em className="italic text-primary">perfect menu</em>
+                </h2>
+                <p className="text-muted-foreground text-lg mb-8">
+                  We'll guide you through selecting dishes for each category, one step at a time.
+                </p>
+                
+                {/* Category Preview Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
                   {Object.entries(dishSelectionRules).map(([category, required]: [string, any]) => {
                     if (required === 0) return null;
                     const selected = selectedDishesByCategory[category]?.length || 0;
                     const isComplete = selected === required;
+                    
+                    const getCategoryIcon = (cat: string) => {
+                      const icons: Record<string, string> = {
+                        appetizer: '🥗',
+                        main_course: '🍖',
+                        side_dish: '🍚',
+                        dessert: '🍰',
+                        beverage: '🥤'
+                      };
+                      return icons[cat] || '🍽️';
+                    };
+                    
                     return (
-                      <button
+                      <div
                         key={category}
-                        onClick={() => {
-                          const element = document.getElementById(`category-${category}`);
-                          element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }}
-                        className={`flex-shrink-0 px-4 py-2.5 rounded-full border-2 transition-all ${
+                        className={`p-4 rounded-xl border-2 transition-all ${
                           isComplete 
-                            ? 'bg-primary border-primary text-primary-foreground shadow-lg' 
-                            : 'bg-background border-border text-foreground hover:border-primary/50'
+                            ? 'bg-primary/10 border-primary' 
+                            : 'bg-muted/30 border-border'
                         }`}
                       >
-                        <div className="flex items-center gap-2 whitespace-nowrap">
-                          <span className="text-xs font-semibold uppercase tracking-wider">
-                            {category.replace('_', ' ')}
-                          </span>
-                          <span className={`text-sm font-bold ${isComplete ? 'text-primary-foreground' : 'text-primary'}`}>
-                            {selected}/{required}
-                          </span>
-                          {isComplete && <span className="text-lg">✓</span>}
+                        <div className="text-4xl mb-2">{getCategoryIcon(category)}</div>
+                        <div className="font-semibold text-sm capitalize mb-1">
+                          {category.replace('_', ' ')}
                         </div>
-                      </button>
+                        <div className={`text-xs ${isComplete ? 'text-primary' : 'text-muted-foreground'}`}>
+                          {isComplete ? '✓ Complete' : `Select ${required}`}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
-              </div>
-
-              {/* Dishes grouped by category */}
-              <div className="space-y-12">
-                {Object.entries(dishSelectionRules).map(([category, required]: [string, any]) => {
-                  if (required === 0) return null;
-                  const categoryDishes = availableDishes.filter(d => d.category === category);
-                  const selectedInCategory = selectedDishesByCategory[category] || [];
+                
+                {/* Progress Summary */}
+                {(() => {
+                  const totalRequired = Object.values(dishSelectionRules).reduce((sum: number, count: any) => sum + count, 0);
+                  const totalSelected = Object.values(selectedDishesByCategory).flat().length;
                   
-                  if (categoryDishes.length === 0) return null;
-                  
-                  return (
-                    <div key={category} id={`category-${category}`} className="scroll-mt-32">
-                      <div className="flex items-center justify-between mb-4 sticky top-24 z-10 bg-background/95 backdrop-blur-sm py-3 -mx-2 px-2 rounded-lg">
-                        <h3 className="font-display text-2xl text-foreground capitalize flex items-center gap-3">
-                          {category.replace('_', ' ')}
-                          <span className={`text-sm px-3 py-1 rounded-full ${
-                            selectedInCategory.length === required
-                              ? 'bg-primary/20 text-primary border-2 border-primary'
-                              : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {selectedInCategory.length}/{required}
-                          </span>
-                        </h3>
+                  if (totalSelected > 0) {
+                    return (
+                      <div className="mb-8 p-4 rounded-lg bg-primary/10 border-2 border-primary/30">
+                        <div className="text-sm text-muted-foreground mb-2">Your Progress</div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 h-3 bg-background rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary transition-all duration-500"
+                              style={{ width: `${(totalSelected / totalRequired) * 100}%` }}
+                            />
+                          </div>
+                          <div className="font-bold text-primary">
+                            {totalSelected}/{totalRequired}
+                          </div>
+                        </div>
                       </div>
-                      
-                      <div className="space-y-3">
-                        {categoryDishes.map((dish) => {
-                          const isSelected = selectedInCategory.includes(dish.id);
-                          const canSelect = selectedInCategory.length < required;
-                          
-                          return (
-                            <div
-                              key={dish.id}
-                              onClick={() => {
-                                if (isSelected) {
-                                  setSelectedDishesByCategory({
-                                    ...selectedDishesByCategory,
-                                    [category]: selectedInCategory.filter(id => id !== dish.id)
-                                  });
-                                } else if (canSelect) {
-                                  setSelectedDishesByCategory({
-                                    ...selectedDishesByCategory,
-                                    [category]: [...selectedInCategory, dish.id]
-                                  });
-                                } else {
-                                  toast({
-                                    title: "Maximum reached",
-                                    description: `You can only select ${required} ${category.replace('_', ' ')} ${required === 1 ? 'dish' : 'dishes'}`,
-                                    variant: "destructive",
-                                  });
-                                }
-                              }}
-                              className={`group relative overflow-hidden rounded-lg cursor-pointer transition-all ${
-                                isSelected
-                                  ? "ring-2 ring-primary shadow-lg shadow-primary/30"
-                                  : "hover:shadow-lg"
-                              }`}
-                            >
-                              {/* Horizontal Card Layout */}
-                              <div className="flex items-stretch">
-                                {/* Dish Image - Left Side */}
-                                <div className="relative w-32 flex-shrink-0 overflow-hidden bg-muted">
-                                  {dish.image ? (
-                                    <img
-                                      src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
-                                      alt={dish.name}
-                                      className={`w-full h-full object-cover transition-transform duration-500 ${
-                                        isSelected ? 'scale-110' : 'group-hover:scale-110'
-                                      }`}
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                                      <UtensilsCrossed className="w-8 h-8 text-muted-foreground/30" />
-                                    </div>
-                                  )}
-                                  
-                                  {/* Gradient Overlay on Image */}
-                                  <div className={`absolute inset-0 transition-opacity duration-300 ${
-                                    isSelected 
-                                      ? 'bg-primary/40' 
-                                      : 'bg-black/10 group-hover:bg-black/20'
-                                  }`} />
-                                  
-                                  {/* Selected Badge on Image */}
-                                  {isSelected && (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                      <div className="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center animate-in zoom-in duration-300">
-                                        <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                                          ✓
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                                
-                                {/* Content - Right Side */}
-                                <div className={`flex-1 p-4 flex flex-col justify-between transition-colors ${
-                                  isSelected 
-                                    ? 'bg-primary/10' 
-                                    : 'bg-card'
-                                }`}>
-                                  <div>
-                                    <div className="flex items-start justify-between gap-2 mb-2">
-                                      <h4 className="font-display text-base font-bold text-foreground leading-tight">
-                                        {dish.name}
-                                      </h4>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setViewingDish(dish);
-                                          setIsDishModalOpen(true);
-                                        }}
-                                        className="flex-shrink-0 p-1.5 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-all"
-                                        title="View details"
-                                      >
-                                        <Eye className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                    
-                                    {dish.description && (
-                                      <p className="text-sm text-muted-foreground line-clamp-2">
-                                        {dish.description}
-                                      </p>
-                                    )}
-                                  </div>
-                                  
-                                  <div className="mt-3 flex items-center justify-between">
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                      {dish.category.replace('_', ' ')}
-                                    </span>
-                                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                                      isSelected 
-                                        ? 'bg-primary text-primary-foreground' 
-                                        : 'bg-muted text-foreground'
-                                    }`}>
-                                      {isSelected ? '✓ Selected' : 'Tap to select'}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                  return null;
+                })()}
               </div>
               
               {/* Floating Continue Button - Shows when all selections complete */}
