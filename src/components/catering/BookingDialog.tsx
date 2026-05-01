@@ -125,6 +125,8 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   const [viewingDish, setViewingDish] = useState<any | null>(null);
   const [isDishModalOpen, setIsDishModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDishConfirmModalOpen, setIsDishConfirmModalOpen] = useState(false);
+  const [isFinalConfirmModalOpen, setIsFinalConfirmModalOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -750,10 +752,10 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 return (
                   <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 animate-in slide-in-from-bottom duration-500">
                     <button
-                      onClick={() => setStep(4)}
+                      onClick={() => setIsDishConfirmModalOpen(true)}
                       className="flex items-center gap-3 px-8 py-4 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/50 hover:shadow-primary/70 hover:scale-105 transition-all font-semibold text-lg"
                     >
-                      <span>All dishes selected!</span>
+                      <span>Review your selections</span>
                       <span className="text-2xl">→</span>
                     </button>
                   </div>
@@ -926,11 +928,11 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
             </button>
           ) : (
             <button
-              onClick={submit}
+              onClick={() => setIsFinalConfirmModalOpen(true)}
               disabled={!info.name || !info.email || isSubmitting}
               className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full gradient-warm text-primary-foreground shadow-soft hover:shadow-card transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Submitting..." : "Submit inquiry"}
+              Review & Submit
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </button>
           )}
@@ -1021,6 +1023,206 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dish Selection Confirmation Modal */}
+      <Dialog open={isDishConfirmModalOpen} onOpenChange={setIsDishConfirmModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="font-display text-3xl font-bold text-foreground mb-2">
+                Confirm Your Dish Selection
+              </h2>
+              <p className="text-muted-foreground">
+                Please review your choices. Make sure this is final before proceeding.
+              </p>
+            </div>
+
+            {/* Selected Dishes by Category */}
+            <div className="space-y-6">
+              {Object.entries(selectedDishesByCategory).map(([category, dishIds]) => {
+                if (!dishIds || dishIds.length === 0) return null;
+                const categoryDishes = availableDishes.filter(d => dishIds.includes(d.id));
+                if (categoryDishes.length === 0) return null;
+
+                return (
+                  <div key={category} className="bg-muted/30 rounded-xl p-5">
+                    <h3 className="font-semibold text-lg text-primary uppercase tracking-wider mb-4">
+                      {category.replace('_', ' ')} ({categoryDishes.length})
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {categoryDishes.map((dish) => (
+                        <div key={dish.id} className="flex items-start gap-3 p-3 bg-background rounded-lg border border-border">
+                          {dish.image && (
+                            <img
+                              src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
+                              alt={dish.name}
+                              className="w-16 h-16 rounded object-cover flex-shrink-0"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-foreground">{dish.name}</p>
+                            {dish.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                                {dish.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4 border-t border-border">
+              <button
+                onClick={() => setIsDishConfirmModalOpen(false)}
+                className="flex-1 px-6 py-3 rounded-lg border-2 border-border hover:bg-muted transition-colors font-medium"
+              >
+                ← Go Back & Edit
+              </button>
+              <button
+                onClick={() => {
+                  setIsDishConfirmModalOpen(false);
+                  setStep(4);
+                }}
+                className="flex-1 px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold"
+              >
+                Confirm & Continue →
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Final Booking Confirmation Modal */}
+      <Dialog open={isFinalConfirmModalOpen} onOpenChange={setIsFinalConfirmModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="font-display text-3xl font-bold text-foreground mb-2">
+                Review Your Booking
+              </h2>
+              <p className="text-muted-foreground">
+                Please confirm all details are correct before submitting your inquiry.
+              </p>
+            </div>
+
+            {/* Booking Summary */}
+            <div className="space-y-4">
+              {/* Package & Tier */}
+              <div className="bg-primary/10 rounded-xl p-5 border-2 border-primary/30">
+                <h3 className="font-semibold text-sm uppercase tracking-wider text-primary mb-3">
+                  Package Selection
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Event Type:</span>
+                    <span className="font-semibold">{packages.find(p => p.id === pkg)?.title}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Package Tier:</span>
+                    <span className="font-semibold">{tiers.find(t => t.id === tier)?.name}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Details */}
+              <div className="bg-muted/30 rounded-xl p-5">
+                <h3 className="font-semibold text-sm uppercase tracking-wider text-foreground/80 mb-3">
+                  Event Details
+                </h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-xs text-muted-foreground">Date:</span>
+                    <p className="font-medium">{details.date ? new Date(details.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Not set'}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Guests:</span>
+                    <p className="font-medium">{details.guests} people</p>
+                  </div>
+                  {details.venue && (
+                    <div className="md:col-span-2">
+                      <span className="text-xs text-muted-foreground">Venue:</span>
+                      <p className="font-medium">{details.venue}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="bg-muted/30 rounded-xl p-5">
+                <h3 className="font-semibold text-sm uppercase tracking-wider text-foreground/80 mb-3">
+                  Contact Information
+                </h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-xs text-muted-foreground">Name:</span>
+                    <p className="font-medium">{info.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Phone:</span>
+                    <p className="font-medium">{info.phone}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-xs text-muted-foreground">Email:</span>
+                    <p className="font-medium">{info.email}</p>
+                  </div>
+                  {info.notes && (
+                    <div className="md:col-span-2">
+                      <span className="text-xs text-muted-foreground">Special Requests:</span>
+                      <p className="font-medium text-sm">{info.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Selected Dishes Summary */}
+              {Object.values(selectedDishesByCategory).flat().length > 0 && (
+                <div className="bg-muted/30 rounded-xl p-5">
+                  <h3 className="font-semibold text-sm uppercase tracking-wider text-foreground/80 mb-3">
+                    Selected Dishes ({Object.values(selectedDishesByCategory).flat().length})
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(selectedDishesByCategory).map(([category, dishIds]) => {
+                      if (!dishIds || dishIds.length === 0) return null;
+                      const categoryDishes = availableDishes.filter(d => dishIds.includes(d.id));
+                      return categoryDishes.map(dish => (
+                        <span key={dish.id} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20">
+                          {dish.name}
+                        </span>
+                      ));
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4 border-t border-border">
+              <button
+                onClick={() => setIsFinalConfirmModalOpen(false)}
+                className="flex-1 px-6 py-3 rounded-lg border-2 border-border hover:bg-muted transition-colors font-medium"
+                disabled={isSubmitting}
+              >
+                ← Go Back & Edit
+              </button>
+              <button
+                onClick={() => {
+                  setIsFinalConfirmModalOpen(false);
+                  submit();
+                }}
+                disabled={isSubmitting}
+                className="flex-1 px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold disabled:opacity-50"
+              >
+                {isSubmitting ? "Submitting..." : "Confirm & Submit Inquiry →"}
+              </button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </Dialog>
