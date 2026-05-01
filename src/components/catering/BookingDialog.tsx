@@ -127,6 +127,8 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDishConfirmModalOpen, setIsDishConfirmModalOpen] = useState(false);
   const [isFinalConfirmModalOpen, setIsFinalConfirmModalOpen] = useState(false);
+  const [currentCategoryModal, setCurrentCategoryModal] = useState<string | null>(null);
+  const [categoryOrder, setCategoryOrder] = useState<string[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -760,6 +762,31 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                   </div>
                 );
               })()}
+              
+              {/* Start Selection Button - Shows at beginning */}
+              {(() => {
+                const hasAnySelection = Object.values(selectedDishesByCategory).some(arr => arr && arr.length > 0);
+                if (hasAnySelection) return null;
+                
+                return (
+                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 animate-in slide-in-from-bottom duration-500">
+                    <button
+                      onClick={() => {
+                        // Set up category order
+                        const categories = Object.entries(dishSelectionRules)
+                          .filter(([_, required]) => required > 0)
+                          .map(([category]) => category);
+                        setCategoryOrder(categories);
+                        setCurrentCategoryModal(categories[0]);
+                      }}
+                      className="flex items-center gap-3 px-8 py-4 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/50 hover:shadow-primary/70 hover:scale-105 transition-all font-semibold text-lg"
+                    >
+                      <span>Start Selecting Dishes</span>
+                      <span className="text-2xl">→</span>
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -1022,6 +1049,205 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Category-by-Category Selection Modal */}
+      <Dialog open={currentCategoryModal !== null} onOpenChange={(open) => !open && setCurrentCategoryModal(null)}>
+        <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden p-0 gap-0">
+          {currentCategoryModal && (() => {
+            const category = currentCategoryModal;
+            const required = dishSelectionRules?.[category] || 0;
+            const categoryDishes = availableDishes.filter(d => d.category === category);
+            const selectedInCategory = selectedDishesByCategory[category] || [];
+            const currentIndex = categoryOrder.indexOf(category);
+            const isLastCategory = currentIndex === categoryOrder.length - 1;
+            
+            const getCategoryIcon = (cat: string) => {
+              const icons: Record<string, string> = {
+                appetizer: '🥗',
+                main_course: '🍖',
+                side_dish: '🍚',
+                dessert: '🍰',
+                beverage: '🥤'
+              };
+              return icons[cat] || '🍽️';
+            };
+            
+            const getCategoryColor = (cat: string) => {
+              const colors: Record<string, string> = {
+                appetizer: 'from-green-500 to-emerald-600',
+                main_course: 'from-orange-500 to-red-600',
+                side_dish: 'from-yellow-500 to-amber-600',
+                dessert: 'from-pink-500 to-rose-600',
+                beverage: 'from-blue-500 to-cyan-600'
+              };
+              return colors[cat] || 'from-primary to-primary';
+            };
+            
+            return (
+              <>
+                {/* Header with Progress */}
+                <div className={`relative bg-gradient-to-r ${getCategoryColor(category)} p-6 text-white`}>
+                  <div className="absolute inset-0 bg-black/10" />
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-5xl">{getCategoryIcon(category)}</span>
+                        <div>
+                          <h2 className="font-display text-3xl font-bold capitalize">
+                            {category.replace('_', ' ')}
+                          </h2>
+                          <p className="text-white/90 text-sm mt-1">
+                            Select {required} {required === 1 ? 'dish' : 'dishes'} from this category
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-4xl font-bold">{selectedInCategory.length}/{required}</div>
+                        <div className="text-xs text-white/80 uppercase tracking-wider">Selected</div>
+                      </div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="flex gap-1">
+                      {categoryOrder.map((cat, idx) => (
+                        <div
+                          key={cat}
+                          className={`h-1.5 flex-1 rounded-full transition-all ${
+                            idx < currentIndex ? 'bg-white' :
+                            idx === currentIndex ? 'bg-white/60' :
+                            'bg-white/20'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="text-xs text-white/80 mt-2 text-center">
+                      Step {currentIndex + 1} of {categoryOrder.length}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Dishes Grid */}
+                <div className="p-6 overflow-y-auto max-h-[calc(95vh-280px)]">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    {categoryDishes.map((dish) => {
+                      const isSelected = selectedInCategory.includes(dish.id);
+                      const canSelect = selectedInCategory.length < required;
+                      
+                      return (
+                        <div
+                          key={dish.id}
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedDishesByCategory({
+                                ...selectedDishesByCategory,
+                                [category]: selectedInCategory.filter(id => id !== dish.id)
+                              });
+                            } else if (canSelect) {
+                              setSelectedDishesByCategory({
+                                ...selectedDishesByCategory,
+                                [category]: [...selectedInCategory, dish.id]
+                              });
+                            } else {
+                              toast({
+                                title: "Maximum reached",
+                                description: `You can only select ${required} ${category.replace('_', ' ')}`,
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className={`group relative overflow-hidden rounded-xl cursor-pointer transition-all ${
+                            isSelected
+                              ? "ring-4 ring-white shadow-2xl scale-105"
+                              : "hover:shadow-xl hover:scale-102"
+                          }`}
+                        >
+                          {/* Dish Image */}
+                          <div className="relative aspect-square overflow-hidden bg-muted">
+                            {dish.image ? (
+                              <img
+                                src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
+                                alt={dish.name}
+                                className={`w-full h-full object-cover transition-transform duration-500 ${
+                                  isSelected ? 'scale-110' : 'group-hover:scale-110'
+                                }`}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                                <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30" />
+                              </div>
+                            )}
+                            
+                            {/* Gradient Overlay */}
+                            <div className={`absolute inset-0 bg-gradient-to-t transition-opacity duration-300 ${
+                              isSelected 
+                                ? 'from-white/95 via-white/60 to-transparent' 
+                                : 'from-black/80 via-black/30 to-transparent group-hover:from-black/90'
+                            }`} />
+                            
+                            {/* Selected Badge */}
+                            {isSelected && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className={`w-20 h-20 rounded-full bg-gradient-to-r ${getCategoryColor(category)} shadow-2xl flex items-center justify-center animate-in zoom-in duration-300`}>
+                                  <span className="text-4xl">✓</span>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Content */}
+                            <div className="absolute bottom-0 left-0 right-0 p-3">
+                              <h4 className={`font-display text-sm font-bold leading-tight line-clamp-2 ${
+                                isSelected ? 'text-foreground' : 'text-white drop-shadow-lg'
+                              }`}>
+                                {dish.name}
+                              </h4>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Footer Actions */}
+                <div className="border-t border-border p-6 bg-muted/30">
+                  <div className="flex gap-3">
+                    {currentIndex > 0 && (
+                      <button
+                        onClick={() => setCurrentCategoryModal(categoryOrder[currentIndex - 1])}
+                        className="px-6 py-3 rounded-lg border-2 border-border hover:bg-muted transition-colors font-medium"
+                      >
+                        ← Previous
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        if (selectedInCategory.length === required) {
+                          if (isLastCategory) {
+                            setCurrentCategoryModal(null);
+                            setIsDishConfirmModalOpen(true);
+                          } else {
+                            setCurrentCategoryModal(categoryOrder[currentIndex + 1]);
+                          }
+                        } else {
+                          toast({
+                            title: "Selection incomplete",
+                            description: `Please select ${required} ${category.replace('_', ' ')}`,
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      disabled={selectedInCategory.length !== required}
+                      className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r ${getCategoryColor(category)} text-white shadow-lg hover:shadow-xl`}
+                    >
+                      {isLastCategory ? 'Review Selections →' : 'Next Category →'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
