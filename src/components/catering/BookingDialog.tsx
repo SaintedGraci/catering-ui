@@ -754,24 +754,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 const hasAnySelection = Object.values(selectedDishesByCategory).some(arr => arr && arr.length > 0);
                 if (hasAnySelection) return null;
                 
-                return (
-                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 animate-in slide-in-from-bottom duration-500">
-                    <button
-                      onClick={() => {
-                        // Set up category order
-                        const categories = Object.entries(dishSelectionRules)
-                          .filter(([_, required]) => required > 0)
-                          .map(([category]) => category);
-                        setCategoryOrder(categories);
-                        setCurrentCategoryModal(categories[0]);
-                      }}
-                      className="flex items-center gap-3 px-8 py-4 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/50 hover:shadow-primary/70 hover:scale-105 transition-all font-semibold text-lg"
-                    >
-                      <span>Start Selecting Dishes</span>
-                      <span className="text-2xl">→</span>
-                    </button>
-                  </div>
-                );
+                return null; // Button moved to footer
               })()}
             </div>
           )}
@@ -1107,9 +1090,24 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
             {step === 1 ? "Cancel" : "Back"}
           </button>
 
-          {/* Hide Continue button on step 3 (dish selection) - only show floating "Start Selecting Dishes" button */}
+          {/* Hide Continue button on step 3 (dish selection) - show Start Selecting Dishes button in footer */}
           {step === 3 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0) ? (
-            <div></div>
+            <button
+              onClick={() => {
+                // Set up category order
+                const categories = Object.entries(dishSelectionRules)
+                  .filter(([_, required]) => required > 0)
+                  .map(([category]) => category);
+                setCategoryOrder(categories);
+                setCurrentCategoryModal(categories[0]);
+              }}
+              className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-200"
+            >
+              Start Selecting Dishes
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           ) : ((step < 4 && (!dishSelectionRules || !Object.values(dishSelectionRules).some(count => count > 0))) || (step < 5 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0))) ? (
             <button
               onClick={() => {
