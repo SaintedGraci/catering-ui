@@ -1107,7 +1107,10 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
             {step === 1 ? "Cancel" : "Back"}
           </button>
 
-          {((step < 4 && (!dishSelectionRules || !Object.values(dishSelectionRules).some(count => count > 0))) || (step < 5 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0))) ? (
+          {/* Hide Continue button on step 3 (dish selection) - only show floating "Start Selecting Dishes" button */}
+          {step === 3 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0) ? (
+            <div></div>
+          ) : ((step < 4 && (!dishSelectionRules || !Object.values(dishSelectionRules).some(count => count > 0))) || (step < 5 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0))) ? (
             <button
               onClick={() => {
                 // Check if we need to show dish selection
@@ -1128,15 +1131,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
               }}
               disabled={
                 (step === 1 && !pkg) || 
-                (step === 2 && !tier) ||
-                (step === 3 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0) && (() => {
-                  // Check if all category requirements are met
-                  return Object.entries(dishSelectionRules).some(([category, required]: [string, any]) => {
-                    if (required === 0) return false;
-                    const selected = selectedDishesByCategory[category]?.length || 0;
-                    return selected !== required;
-                  });
-                })())
+                (step === 2 && !tier)
               }
               className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             >
