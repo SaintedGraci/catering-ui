@@ -614,7 +614,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                         </h3>
                       </div>
                       
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
                         {categoryDishes.map((dish) => {
                           const isSelected = selectedInCategory.includes(dish.id);
                           const canSelect = selectedInCategory.length < required;
@@ -641,14 +641,14 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                   });
                                 }
                               }}
-                              className={`group relative overflow-hidden rounded-lg cursor-pointer transition-all ${
+                              className={`group relative flex-shrink-0 w-[280px] overflow-hidden rounded-lg cursor-pointer transition-all snap-start ${
                                 isSelected
                                   ? "ring-2 ring-primary shadow-lg shadow-primary/30"
                                   : "hover:shadow-lg"
                               }`}
                             >
-                              {/* Dish Image - Compact for Mobile */}
-                              <div className="relative aspect-square overflow-hidden bg-muted">
+                              {/* Dish Image - Horizontal Card */}
+                              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                                 {dish.image ? (
                                   <img
                                     src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
@@ -659,7 +659,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                                    <UtensilsCrossed className="w-8 h-8 text-muted-foreground/30" />
+                                    <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30" />
                                   </div>
                                 )}
                                 
@@ -672,8 +672,8 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                 
                                 {/* Selected Badge */}
                                 {isSelected && (
-                                  <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white shadow-lg flex items-center justify-center animate-in zoom-in duration-300">
-                                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs">
+                                  <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center animate-in zoom-in duration-300">
+                                    <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
                                       ✓
                                     </div>
                                   </div>
@@ -686,23 +686,23 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                     setViewingDish(dish);
                                     setIsDishModalOpen(true);
                                   }}
-                                  className="absolute top-2 left-2 p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 transition-all opacity-0 group-hover:opacity-100"
+                                  className="absolute top-3 left-3 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 transition-all opacity-0 group-hover:opacity-100"
                                   title="View details"
                                 >
-                                  <Eye className="w-3 h-3" />
+                                  <Eye className="w-4 h-4" />
                                 </button>
                                 
-                                {/* Content Overlay - Compact for Mobile */}
-                                <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                                  <div className="space-y-1">
+                                {/* Content Overlay */}
+                                <div className="absolute bottom-0 left-0 right-0 p-3">
+                                  <div className="space-y-1.5">
                                     {/* Dish Name */}
-                                    <h4 className="font-display text-sm font-bold text-white drop-shadow-lg leading-tight line-clamp-2">
+                                    <h4 className="font-display text-base font-bold text-white drop-shadow-lg leading-tight line-clamp-2">
                                       {dish.name}
                                     </h4>
                                     
-                                    {/* Description - Hidden on mobile, shown on larger screens */}
+                                    {/* Description */}
                                     {dish.description && (
-                                      <p className="hidden sm:block text-xs text-white/90 line-clamp-1 drop-shadow-md">
+                                      <p className="text-xs text-white/90 line-clamp-2 drop-shadow-md">
                                         {dish.description}
                                       </p>
                                     )}
@@ -710,8 +710,8 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                 </div>
                               </div>
                               
-                              {/* Action Button - Compact */}
-                              <div className={`p-2 transition-colors ${
+                              {/* Action Button */}
+                              <div className={`p-2.5 transition-colors ${
                                 isSelected 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'bg-card border-t border-border group-hover:bg-muted'
