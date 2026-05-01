@@ -202,11 +202,13 @@ const SettingsPage = () => {
         <Tabs defaultValue="account" className="space-y-8">
           <TabsList className="bg-card/50 backdrop-blur-sm border border-border/50 p-1">
             <TabsTrigger value="account" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Account</TabsTrigger>
-            <TabsTrigger value="business" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Business Info</TabsTrigger>
+            <TabsTrigger value="business" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Business</TabsTrigger>
+            <TabsTrigger value="branding" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Branding</TabsTrigger>
             <TabsTrigger value="contact" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Contact</TabsTrigger>
-            <TabsTrigger value="social" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Social Media</TabsTrigger>
-            <TabsTrigger value="hours" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Business Hours</TabsTrigger>
+            <TabsTrigger value="social" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Social</TabsTrigger>
+            <TabsTrigger value="hours" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Hours</TabsTrigger>
             <TabsTrigger value="website" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Website</TabsTrigger>
+            <TabsTrigger value="booking" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Booking</TabsTrigger>
             <TabsTrigger value="seo" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">SEO</TabsTrigger>
           </TabsList>
 
@@ -322,6 +324,21 @@ const SettingsPage = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
+                <Label htmlFor="websiteName">Website Name *</Label>
+                <Input
+                  id="websiteName"
+                  value={settings.websiteName || settings.businessName}
+                  onChange={(e) =>
+                    setSettings({ ...settings, websiteName: e.target.value })
+                  }
+                  placeholder="Filipino Catering"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Shown in browser tab and website header
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="businessName">Business Name *</Label>
                 <Input
                   id="businessName"
@@ -406,6 +423,149 @@ const SettingsPage = () => {
           </Card>
         </TabsContent>
 
+        {/* Branding & Hero Section */}
+        <TabsContent value="branding">
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-br from-card/80 to-card/30 backdrop-blur-md border-border/50 shadow-card overflow-hidden">
+              <CardHeader>
+                <CardTitle>Hero Section</CardTitle>
+                <CardDescription>
+                  Customize the main banner on your landing page
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="heroTitle">Hero Title</Label>
+                  <Input
+                    id="heroTitle"
+                    value={settings.heroTitle || ""}
+                    onChange={(e) =>
+                      setSettings({ ...settings, heroTitle: e.target.value })
+                    }
+                    placeholder="Authentic Filipino Catering"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="heroSubtitle">Hero Subtitle</Label>
+                  <Textarea
+                    id="heroSubtitle"
+                    value={settings.heroSubtitle || ""}
+                    onChange={(e) =>
+                      setSettings({ ...settings, heroSubtitle: e.target.value })
+                    }
+                    placeholder="Bringing the flavors of the Philippines to your special events"
+                    rows={2}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="heroCtaText">Call-to-Action Button Text</Label>
+                  <Input
+                    id="heroCtaText"
+                    value={settings.heroCtaText || ""}
+                    onChange={(e) =>
+                      setSettings({ ...settings, heroCtaText: e.target.value })
+                    }
+                    placeholder="Book Your Event"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-card/80 to-card/30 backdrop-blur-md border-border/50 shadow-card overflow-hidden">
+              <CardHeader>
+                <CardTitle>About Section</CardTitle>
+                <CardDescription>
+                  Content for the about section on your landing page
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="aboutTitle">About Section Title</Label>
+                  <Input
+                    id="aboutTitle"
+                    value={settings.aboutTitle || ""}
+                    onChange={(e) =>
+                      setSettings({ ...settings, aboutTitle: e.target.value })
+                    }
+                    placeholder="About Us"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="aboutContent">About Content</Label>
+                  <Textarea
+                    id="aboutContent"
+                    value={settings.aboutContent || ""}
+                    onChange={(e) =>
+                      setSettings({ ...settings, aboutContent: e.target.value })
+                    }
+                    placeholder="Tell your story..."
+                    rows={6}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-card/80 to-card/30 backdrop-blur-md border-border/50 shadow-card overflow-hidden">
+              <CardHeader>
+                <CardTitle>Brand Colors</CardTitle>
+                <CardDescription>
+                  Customize your website's color scheme
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="primaryColor">Primary Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="primaryColor"
+                        type="color"
+                        value={settings.primaryColor || "#D97706"}
+                        onChange={(e) =>
+                          setSettings({ ...settings, primaryColor: e.target.value })
+                        }
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={settings.primaryColor || "#D97706"}
+                        onChange={(e) =>
+                          setSettings({ ...settings, primaryColor: e.target.value })
+                        }
+                        placeholder="#D97706"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="secondaryColor">Secondary Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="secondaryColor"
+                        type="color"
+                        value={settings.secondaryColor || "#059669"}
+                        onChange={(e) =>
+                          setSettings({ ...settings, secondaryColor: e.target.value })
+                        }
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={settings.secondaryColor || "#059669"}
+                        onChange={(e) =>
+                          setSettings({ ...settings, secondaryColor: e.target.value })
+                        }
+                        placeholder="#059669"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
         {/* Contact Information */}
         <TabsContent value="contact">
           <Card className="bg-gradient-to-br from-card/80 to-card/30 backdrop-blur-md border-border/50 shadow-card overflow-hidden">
@@ -430,6 +590,22 @@ const SettingsPage = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="notificationEmail">Notification Email</Label>
+                <Input
+                  id="notificationEmail"
+                  type="email"
+                  value={settings.notificationEmail || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, notificationEmail: e.target.value })
+                  }
+                  placeholder="bookings@filipinocatering.com"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Email to receive booking notifications
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
                   id="phone"
@@ -443,6 +619,22 @@ const SettingsPage = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="whatsapp">WhatsApp Number</Label>
+                <Input
+                  id="whatsapp"
+                  type="tel"
+                  value={settings.whatsapp || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, whatsapp: e.target.value })
+                  }
+                  placeholder="+63 912 345 6789"
+                />
+                <p className="text-xs text-muted-foreground">
+                  For quick customer inquiries
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="address">Business Address</Label>
                 <Textarea
                   id="address"
@@ -452,6 +644,24 @@ const SettingsPage = () => {
                   }
                   placeholder="123 Main Street, Manila, Philippines"
                   rows={3}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
+                <div>
+                  <Label htmlFor="emailNotifications" className="cursor-pointer">
+                    Email Notifications
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive email alerts for new bookings
+                  </p>
+                </div>
+                <Switch
+                  id="emailNotifications"
+                  checked={settings.emailNotificationsEnabled}
+                  onCheckedChange={(checked) =>
+                    setSettings({ ...settings, emailNotificationsEnabled: checked })
+                  }
                 />
               </div>
             </CardContent>
@@ -495,7 +705,7 @@ const SettingsPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="twitterUrl">Twitter Profile URL</Label>
+                <Label htmlFor="twitterUrl">Twitter/X Profile URL</Label>
                 <Input
                   id="twitterUrl"
                   type="url"
@@ -504,6 +714,45 @@ const SettingsPage = () => {
                     setSettings({ ...settings, twitterUrl: e.target.value })
                   }
                   placeholder="https://twitter.com/yourprofile"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tiktokUrl">TikTok Profile URL</Label>
+                <Input
+                  id="tiktokUrl"
+                  type="url"
+                  value={settings.tiktokUrl || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, tiktokUrl: e.target.value })
+                  }
+                  placeholder="https://tiktok.com/@yourprofile"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="youtubeUrl">YouTube Channel URL</Label>
+                <Input
+                  id="youtubeUrl"
+                  type="url"
+                  value={settings.youtubeUrl || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, youtubeUrl: e.target.value })
+                  }
+                  placeholder="https://youtube.com/@yourchannel"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="linkedinUrl">LinkedIn Profile URL</Label>
+                <Input
+                  id="linkedinUrl"
+                  type="url"
+                  value={settings.linkedinUrl || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, linkedinUrl: e.target.value })
+                  }
+                  placeholder="https://linkedin.com/company/yourcompany"
                 />
               </div>
             </CardContent>
@@ -588,38 +837,6 @@ const SettingsPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="minGuestsDefault">Default Min Guests</Label>
-                  <Input
-                    id="minGuestsDefault"
-                    type="number"
-                    value={settings.minGuestsDefault}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        minGuestsDefault: parseInt(e.target.value) || 0,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="maxGuestsDefault">Default Max Guests</Label>
-                  <Input
-                    id="maxGuestsDefault"
-                    type="number"
-                    value={settings.maxGuestsDefault}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        maxGuestsDefault: parseInt(e.target.value) || 0,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency Code</Label>
@@ -656,6 +873,108 @@ const SettingsPage = () => {
                     placeholder="Asia/Manila"
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Booking Settings */}
+        <TabsContent value="booking">
+          <Card className="bg-gradient-to-br from-card/80 to-card/30 backdrop-blur-md border-border/50 shadow-card overflow-hidden">
+            <CardHeader>
+              <CardTitle>Booking Settings</CardTitle>
+              <CardDescription>
+                Configure booking rules and policies
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="minGuestsDefault">Default Min Guests</Label>
+                  <Input
+                    id="minGuestsDefault"
+                    type="number"
+                    value={settings.minGuestsDefault}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        minGuestsDefault: parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="maxGuestsDefault">Default Max Guests</Label>
+                  <Input
+                    id="maxGuestsDefault"
+                    type="number"
+                    value={settings.maxGuestsDefault}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        maxGuestsDefault: parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bookingLeadTimeDays">Booking Lead Time (Days)</Label>
+                <Input
+                  id="bookingLeadTimeDays"
+                  type="number"
+                  value={settings.bookingLeadTimeDays || 7}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      bookingLeadTimeDays: parseInt(e.target.value) || 7,
+                    })
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Minimum days in advance customers must book
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cancellationPolicy">Cancellation Policy</Label>
+                <Textarea
+                  id="cancellationPolicy"
+                  value={settings.cancellationPolicy || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, cancellationPolicy: e.target.value })
+                  }
+                  placeholder="Describe your cancellation policy..."
+                  rows={4}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="termsAndConditions">Terms & Conditions</Label>
+                <Textarea
+                  id="termsAndConditions"
+                  value={settings.termsAndConditions || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, termsAndConditions: e.target.value })
+                  }
+                  placeholder="Your terms and conditions..."
+                  rows={6}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="privacyPolicy">Privacy Policy</Label>
+                <Textarea
+                  id="privacyPolicy"
+                  value={settings.privacyPolicy || ""}
+                  onChange={(e) =>
+                    setSettings({ ...settings, privacyPolicy: e.target.value })
+                  }
+                  placeholder="Your privacy policy..."
+                  rows={6}
+                />
               </div>
             </CardContent>
           </Card>

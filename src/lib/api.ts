@@ -239,16 +239,43 @@ export interface Package {
 
 export interface Settings {
   id: number;
+  // Business Information
   businessName: string;
+  websiteName?: string;
   tagline?: string;
   description?: string;
   logo?: string;
+  favicon?: string;
+  
+  // Hero Section
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroCtaText?: string;
+  heroImage?: string;
+  
+  // About Section
+  aboutTitle?: string;
+  aboutContent?: string;
+  
+  // Footer
+  footerText?: string;
+  footerLinks?: any[];
+  
+  // Contact Information
   email?: string;
   phone?: string;
+  whatsapp?: string;
   address?: string;
+  
+  // Social Media
   facebookUrl?: string;
   instagramUrl?: string;
   twitterUrl?: string;
+  linkedinUrl?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
+  
+  // Business Hours
   businessHours?: {
     monday: string;
     tuesday: string;
@@ -258,16 +285,36 @@ export interface Settings {
     saturday: string;
     sunday: string;
   };
+  
+  // Website Settings
   maintenanceMode: boolean;
   allowBookings: boolean;
   minGuestsDefault: number;
   maxGuestsDefault: number;
+  bookingLeadTimeDays?: number;
+  cancellationPolicy?: string;
+  termsAndConditions?: string;
+  privacyPolicy?: string;
+  
+  // SEO
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+  
+  // Additional Settings
   currency: string;
   currencySymbol: string;
   timezone: string;
+  
+  // Email Notifications
+  notificationEmail?: string;
+  emailNotificationsEnabled: boolean;
+  
+  // Theme/Branding
+  primaryColor?: string;
+  secondaryColor?: string;
+  fontFamily?: string;
+  
   createdAt: string;
   updatedAt: string;
 }
