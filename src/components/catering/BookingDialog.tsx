@@ -551,43 +551,45 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
               <h2 className="font-display text-3xl sm:text-4xl text-foreground text-balance mb-2">
                 Select your <em className="italic text-primary">dishes</em>.
               </h2>
+              <p className="text-muted-foreground mb-6">Tap categories below to jump to each section</p>
               
-              {/* Category Selection Counter */}
-              <div className="mb-6 p-4 rounded-lg bg-primary/10 border-2 border-primary/30">
-                <p className="text-lg font-semibold text-foreground mb-3">
-                  Choose dishes by category
-                </p>
-                <div className="flex flex-wrap gap-3">
+              {/* Sticky Category Navigation - Mobile Optimized */}
+              <div className="sticky top-0 z-20 -mx-6 sm:-mx-10 px-6 sm:px-10 py-4 bg-background/95 backdrop-blur-sm border-y border-border mb-6">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                   {Object.entries(dishSelectionRules).map(([category, required]: [string, any]) => {
                     if (required === 0) return null;
                     const selected = selectedDishesByCategory[category]?.length || 0;
                     const isComplete = selected === required;
                     return (
-                      <div 
+                      <button
                         key={category}
-                        className={`px-3 py-2 rounded-lg border-2 ${
+                        onClick={() => {
+                          const element = document.getElementById(`category-${category}`);
+                          element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }}
+                        className={`flex-shrink-0 px-4 py-2.5 rounded-full border-2 transition-all ${
                           isComplete 
-                            ? 'bg-primary/20 border-primary' 
-                            : 'bg-background border-border'
+                            ? 'bg-primary border-primary text-primary-foreground shadow-lg' 
+                            : 'bg-background border-border text-foreground hover:border-primary/50'
                         }`}
                       >
-                        <div className="text-xs uppercase tracking-wider text-foreground/60 mb-1">
-                          {category.replace('_', ' ')}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-2xl font-bold ${isComplete ? 'text-primary' : 'text-foreground'}`}>
+                        <div className="flex items-center gap-2 whitespace-nowrap">
+                          <span className="text-xs font-semibold uppercase tracking-wider">
+                            {category.replace('_', ' ')}
+                          </span>
+                          <span className={`text-sm font-bold ${isComplete ? 'text-primary-foreground' : 'text-primary'}`}>
                             {selected}/{required}
                           </span>
-                          {isComplete && <span className="text-primary">✓</span>}
+                          {isComplete && <span className="text-lg">✓</span>}
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
               </div>
 
               {/* Dishes grouped by category */}
-              <div className="space-y-8">
+              <div className="space-y-12">
                 {Object.entries(dishSelectionRules).map(([category, required]: [string, any]) => {
                   if (required === 0) return null;
                   const categoryDishes = availableDishes.filter(d => d.category === category);
@@ -596,14 +598,18 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                   if (categoryDishes.length === 0) return null;
                   
                   return (
-                    <div key={category}>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-display text-xl text-foreground capitalize">
+                    <div key={category} id={`category-${category}`} className="scroll-mt-32">
+                      <div className="flex items-center justify-between mb-4 sticky top-24 z-10 bg-background/95 backdrop-blur-sm py-3 -mx-2 px-2 rounded-lg">
+                        <h3 className="font-display text-2xl text-foreground capitalize flex items-center gap-3">
                           {category.replace('_', ' ')}
+                          <span className={`text-sm px-3 py-1 rounded-full ${
+                            selectedInCategory.length === required
+                              ? 'bg-primary/20 text-primary border-2 border-primary'
+                              : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {selectedInCategory.length}/{required}
+                          </span>
                         </h3>
-                        <span className="text-sm text-foreground/60">
-                          Select {required} {required === 1 ? 'dish' : 'dishes'}
-                        </span>
                       </div>
                       
                       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -730,6 +736,29 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                   );
                 })}
               </div>
+              
+              {/* Floating Continue Button - Shows when all selections complete */}
+              {(() => {
+                const allComplete = Object.entries(dishSelectionRules).every(([category, required]: [string, any]) => {
+                  if (required === 0) return true;
+                  const selected = selectedDishesByCategory[category]?.length || 0;
+                  return selected === required;
+                });
+                
+                if (!allComplete) return null;
+                
+                return (
+                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 animate-in slide-in-from-bottom duration-500">
+                    <button
+                      onClick={() => setStep(4)}
+                      className="flex items-center gap-3 px-8 py-4 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/50 hover:shadow-primary/70 hover:scale-105 transition-all font-semibold text-lg"
+                    >
+                      <span>All dishes selected!</span>
+                      <span className="text-2xl">→</span>
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
