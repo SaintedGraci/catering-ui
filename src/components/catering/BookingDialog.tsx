@@ -614,7 +614,7 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                         </h3>
                       </div>
                       
-                      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+                      <div className="space-y-3">
                         {categoryDishes.map((dish) => {
                           const isSelected = selectedInCategory.includes(dish.id);
                           const canSelect = selectedInCategory.length < required;
@@ -641,85 +641,92 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                                   });
                                 }
                               }}
-                              className={`group relative flex-shrink-0 w-[280px] overflow-hidden rounded-lg cursor-pointer transition-all snap-start ${
+                              className={`group relative overflow-hidden rounded-lg cursor-pointer transition-all ${
                                 isSelected
                                   ? "ring-2 ring-primary shadow-lg shadow-primary/30"
                                   : "hover:shadow-lg"
                               }`}
                             >
-                              {/* Dish Image - Horizontal Card */}
-                              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                                {dish.image ? (
-                                  <img
-                                    src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
-                                    alt={dish.name}
-                                    className={`w-full h-full object-cover transition-transform duration-500 ${
-                                      isSelected ? 'scale-110' : 'group-hover:scale-110'
-                                    }`}
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                                    <UtensilsCrossed className="w-12 h-12 text-muted-foreground/30" />
-                                  </div>
-                                )}
-                                
-                                {/* Gradient Overlay */}
-                                <div className={`absolute inset-0 bg-gradient-to-t transition-opacity duration-300 ${
-                                  isSelected 
-                                    ? 'from-primary/95 via-primary/60 to-transparent' 
-                                    : 'from-black/85 via-black/40 to-transparent group-hover:from-black/90'
-                                }`} />
-                                
-                                {/* Selected Badge */}
-                                {isSelected && (
-                                  <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center animate-in zoom-in duration-300">
-                                    <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
-                                      ✓
+                              {/* Horizontal Card Layout */}
+                              <div className="flex items-stretch">
+                                {/* Dish Image - Left Side */}
+                                <div className="relative w-32 flex-shrink-0 overflow-hidden bg-muted">
+                                  {dish.image ? (
+                                    <img
+                                      src={dish.image.startsWith('http') ? dish.image : `${import.meta.env.VITE_API_URL || ''}${dish.image}`}
+                                      alt={dish.name}
+                                      className={`w-full h-full object-cover transition-transform duration-500 ${
+                                        isSelected ? 'scale-110' : 'group-hover:scale-110'
+                                      }`}
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                                      <UtensilsCrossed className="w-8 h-8 text-muted-foreground/30" />
                                     </div>
-                                  </div>
-                                )}
+                                  )}
+                                  
+                                  {/* Gradient Overlay on Image */}
+                                  <div className={`absolute inset-0 transition-opacity duration-300 ${
+                                    isSelected 
+                                      ? 'bg-primary/40' 
+                                      : 'bg-black/10 group-hover:bg-black/20'
+                                  }`} />
+                                  
+                                  {/* Selected Badge on Image */}
+                                  {isSelected && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <div className="w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center animate-in zoom-in duration-300">
+                                        <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                                          ✓
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                                 
-                                {/* View Details Button */}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setViewingDish(dish);
-                                    setIsDishModalOpen(true);
-                                  }}
-                                  className="absolute top-3 left-3 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm border border-white/20 transition-all opacity-0 group-hover:opacity-100"
-                                  title="View details"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-                                
-                                {/* Content Overlay */}
-                                <div className="absolute bottom-0 left-0 right-0 p-3">
-                                  <div className="space-y-1.5">
-                                    {/* Dish Name */}
-                                    <h4 className="font-display text-base font-bold text-white drop-shadow-lg leading-tight line-clamp-2">
-                                      {dish.name}
-                                    </h4>
+                                {/* Content - Right Side */}
+                                <div className={`flex-1 p-4 flex flex-col justify-between transition-colors ${
+                                  isSelected 
+                                    ? 'bg-primary/10' 
+                                    : 'bg-card'
+                                }`}>
+                                  <div>
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                      <h4 className="font-display text-base font-bold text-foreground leading-tight">
+                                        {dish.name}
+                                      </h4>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setViewingDish(dish);
+                                          setIsDishModalOpen(true);
+                                        }}
+                                        className="flex-shrink-0 p-1.5 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-all"
+                                        title="View details"
+                                      >
+                                        <Eye className="w-4 h-4" />
+                                      </button>
+                                    </div>
                                     
-                                    {/* Description */}
                                     {dish.description && (
-                                      <p className="text-xs text-white/90 line-clamp-2 drop-shadow-md">
+                                      <p className="text-sm text-muted-foreground line-clamp-2">
                                         {dish.description}
                                       </p>
                                     )}
                                   </div>
-                                </div>
-                              </div>
-                              
-                              {/* Action Button */}
-                              <div className={`p-2.5 transition-colors ${
-                                isSelected 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-card border-t border-border group-hover:bg-muted'
-                              }`}>
-                                <div className="text-center">
-                                  <span className="text-xs font-semibold">
-                                    {isSelected ? '✓ Selected' : 'Tap to select'}
-                                  </span>
+                                  
+                                  <div className="mt-3 flex items-center justify-between">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                      {dish.category.replace('_', ' ')}
+                                    </span>
+                                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                                      isSelected 
+                                        ? 'bg-primary text-primary-foreground' 
+                                        : 'bg-muted text-foreground'
+                                    }`}>
+                                      {isSelected ? '✓ Selected' : 'Tap to select'}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
