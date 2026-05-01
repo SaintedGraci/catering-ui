@@ -469,29 +469,43 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
     }
   };
 
-  const inputCls = "w-full bg-transparent border-b focus:border-primary outline-none py-3 text-foreground placeholder:text-muted-foreground transition-colors";
-  const inputErrorCls = "w-full bg-transparent border-b border-destructive focus:border-destructive outline-none py-3 text-foreground placeholder:text-muted-foreground transition-colors";
-  const inputSuccessCls = "w-full bg-transparent border-b border-green-500 focus:border-green-600 outline-none py-3 text-foreground placeholder:text-muted-foreground transition-colors";
+  const inputCls = "w-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-xl px-4 py-3.5 text-base text-foreground placeholder:text-gray-400 transition-all duration-200 outline-none";
+  const inputErrorCls = "w-full bg-red-50 dark:bg-red-950/20 border-2 border-red-500 focus:border-red-600 focus:ring-4 focus:ring-red-500/10 rounded-xl px-4 py-3.5 text-base text-foreground placeholder:text-red-300 transition-all duration-200 outline-none";
+  const inputSuccessCls = "w-full bg-green-50 dark:bg-green-950/20 border-2 border-green-500 focus:border-green-600 focus:ring-4 focus:ring-green-500/10 rounded-xl px-4 py-3.5 text-base text-foreground placeholder:text-green-300 transition-all duration-200 outline-none";
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 gap-0 bg-background border-border">
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-8 py-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs tracking-[0.25em] uppercase text-primary">Plan your event</p>
-            <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Step {step} of {dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0) ? 5 : 4}</p>
+      <DialogContent className="max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden p-0 gap-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 border-0 shadow-2xl rounded-3xl">
+        {/* Modern Progress Header */}
+        <div className="sticky top-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 px-6 sm:px-8 py-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs font-semibold tracking-wider uppercase text-primary mb-1">Book Your Event</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Step {step} of {dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0) ? 5 : 4}</p>
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+              <span className="text-xs font-medium text-primary">In Progress</span>
+            </div>
           </div>
+          {/* Modern Progress Bar */}
           <div className="flex gap-2">
             {Array.from({ length: dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0) ? 5 : 4 }).map((_, n) => (
               <div
                 key={n}
-                className={`h-0.5 flex-1 rounded-full transition-colors ${n < step ? "bg-primary" : "bg-border"}`}
+                className={`h-2 flex-1 rounded-full transition-all duration-500 ${
+                  n < step 
+                    ? "bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30" 
+                    : n === step - 1
+                    ? "bg-gradient-to-r from-primary/60 to-primary/40"
+                    : "bg-gray-200 dark:bg-gray-700"
+                }`}
               />
             ))}
           </div>
         </div>
 
-        <div className="px-6 sm:px-10 py-10">
+        <div className="px-6 sm:px-10 py-8 sm:py-10 overflow-y-auto max-h-[calc(95vh-180px)]">
           {step === 1 && (
             <div className="reveal">
               <h2 className="font-display text-3xl sm:text-4xl text-foreground text-balance mb-2">
@@ -505,31 +519,40 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                   <p className="text-foreground/60">Loading packages...</p>
                 </div>
               ) : (
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-5">
                   {packages.map((p) => (
                     <button
                       key={p.id}
                       onClick={() => setPkg(p.id)}
-                      className={`group text-left rounded-sm overflow-hidden border-2 transition-all ${
-                        pkg === p.id ? "border-primary shadow-card" : "border-transparent hover:border-border"
+                      className={`group text-left rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                        pkg === p.id 
+                          ? "border-primary shadow-2xl shadow-primary/20 scale-[1.02]" 
+                          : "border-gray-200 dark:border-gray-700 hover:border-primary/50 hover:shadow-xl"
                       }`}
                     >
-                      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                        <img src={p.img} alt={p.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+                        <img src={p.img} alt={p.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                         {pkg === p.id && (
-                          <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm">✓</div>
+                          <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
                         )}
                       </div>
-                      <div className="p-5 bg-card">
-                        <div className="font-display text-xl text-foreground">{p.title}</div>
-                        <div className="text-sm text-muted-foreground mt-1">{p.tagline}</div>
-                        <div className="flex flex-wrap gap-3 mt-3 text-xs text-foreground/60">
-                          {p.price && <span>{p.price}</span>}
+                      <div className="p-6 bg-white dark:bg-gray-900">
+                        <div className="font-display text-2xl font-bold text-foreground mb-2">{p.title}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">{p.tagline}</div>
+                        <div className="flex flex-wrap gap-2">
+                          {p.price && (
+                            <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">{p.price}</span>
+                          )}
                           {p.dishCount !== undefined && p.dishCount > 0 && (
-                            <span>{p.dishCount} dishes</span>
+                            <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium">{p.dishCount} dishes</span>
                           )}
                           {p.minGuests && (
-                            <span>{p.minGuests}-{p.maxGuests || "+"} guests</span>
+                            <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium">{p.minGuests}-{p.maxGuests || "+"} guests</span>
                           )}
                         </div>
                       </div>
@@ -888,14 +911,14 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
 
           {((step === 4 && (!dishSelectionRules || !Object.values(dishSelectionRules).some(count => count > 0))) || (step === 5 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0))) && (
             <div className="reveal">
-              <h2 className="font-display text-3xl sm:text-4xl text-foreground text-balance mb-2">
+              <h2 className="font-display text-3xl sm:text-4xl text-foreground text-balance mb-3">
                 Last step — how can we <em className="italic text-primary">reach you</em>?
               </h2>
-              <p className="text-muted-foreground mb-8">We'll be in touch within one business day.</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-8">We'll be in touch within one business day.</p>
 
-              <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2">
-                <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Full name *</span>
+              <div className="grid sm:grid-cols-2 gap-6">
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Full name *</span>
                   <input 
                     value={info.name} 
                     onChange={(e) => handleFieldChange('customerName', e.target.value)}
@@ -910,14 +933,19 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                       info.name && !validateField('customerName', info.name) ? inputSuccessCls :
                       inputCls
                     }
-                    placeholder="Your name" 
+                    placeholder="John Doe" 
                   />
                   {validationErrors.customerName && (
-                    <p className="text-xs text-destructive mt-1">{validationErrors.customerName}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1.5">
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {validationErrors.customerName}
+                    </p>
                   )}
                 </label>
-                <label className="block">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Email *</span>
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Email *</span>
                   <input 
                     type="email" 
                     value={info.email} 
@@ -933,14 +961,19 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                       info.email && !validateField('customerEmail', info.email) ? inputSuccessCls :
                       inputCls
                     }
-                    placeholder="you@email.com" 
+                    placeholder="john@example.com" 
                   />
                   {validationErrors.customerEmail && (
-                    <p className="text-xs text-destructive mt-1">{validationErrors.customerEmail}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1.5">
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {validationErrors.customerEmail}
+                    </p>
                   )}
                 </label>
-                <label className="block sm:col-span-2">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Phone *</span>
+                <label className="block sm:col-span-2 space-y-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone *</span>
                   <input 
                     type="tel" 
                     value={info.phone} 
@@ -959,35 +992,95 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                     placeholder="+1 (555) 000-0000 (min. 7 characters)" 
                   />
                   {validationErrors.customerPhone && (
-                    <p className="text-xs text-destructive mt-1">{validationErrors.customerPhone}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1.5">
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {validationErrors.customerPhone}
+                    </p>
                   )}
                 </label>
-                <label className="block sm:col-span-2 mt-2">
-                  <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground">Anything we should know?</span>
-                  <textarea rows={3} value={info.notes} onChange={(e) => setInfo({ ...info, notes: e.target.value })} className={`${inputCls} resize-none`} placeholder="Dietary needs, theme, special requests…" />
+                <label className="block sm:col-span-2 space-y-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Special requests (optional)</span>
+                  <textarea rows={4} value={info.notes} onChange={(e) => setInfo({ ...info, notes: e.target.value })} className={`${inputCls} resize-none`} placeholder="Dietary restrictions, theme preferences, special accommodations..." />
                 </label>
               </div>
 
-              <div className="mt-8 p-5 bg-muted rounded-sm">
-                <div className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">Your selections</div>
-                <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-foreground">
-                  <span><span className="text-muted-foreground">Event:</span> {packages.find(p => p.id === pkg)?.title}</span>
-                  <span><span className="text-muted-foreground">Tier:</span> {tiers.find(t => t.id === tier)?.name}</span>
+              <div className="mt-8 p-6 bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/5 rounded-2xl border border-primary/20">
+                <div className="text-xs font-semibold tracking-wider uppercase text-primary mb-4">Booking Summary</div>
+                <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs mb-0.5">Event Type</p>
+                      <p className="font-semibold text-foreground">{packages.find(p => p.id === pkg)?.title}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs mb-0.5">Package Tier</p>
+                      <p className="font-semibold text-foreground">{tiers.find(t => t.id === tier)?.name}</p>
+                    </div>
+                  </div>
                   {(() => {
                     const totalSelected = Object.values(selectedDishesByCategory).flat().length;
                     return totalSelected > 0 && (
-                      <span><span className="text-muted-foreground">Dishes:</span> {totalSelected} selected</span>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-gray-500 dark:text-gray-400 text-xs mb-0.5">Selected Dishes</p>
+                          <p className="font-semibold text-foreground">{totalSelected} dishes</p>
+                        </div>
+                      </div>
                     );
                   })()}
-                  {details.date && <span><span className="text-muted-foreground">Date:</span> {details.date}</span>}
-                  {details.guests && <span><span className="text-muted-foreground">Guests:</span> {details.guests}</span>}
+                  {details.date && (
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs mb-0.5">Event Date</p>
+                        <p className="font-semibold text-foreground">{details.date}</p>
+                      </div>
+                    </div>
+                  )}
+                  {details.guests && (
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs mb-0.5">Guest Count</p>
+                        <p className="font-semibold text-foreground">{details.guests} people</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t border-border px-6 sm:px-10 py-5 flex items-center justify-between">
+        {/* Modern Footer */}
+        <div className="sticky bottom-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 sm:px-10 py-6 flex items-center justify-between gap-4">
           <button
             onClick={() => {
               if (step === 1) {
@@ -1006,9 +1099,12 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                 setStep(step - 1);
               }
             }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
           >
-            {step === 1 ? "Cancel" : "← Back"}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            {step === 1 ? "Cancel" : "Back"}
           </button>
 
           {((step < 4 && (!dishSelectionRules || !Object.values(dishSelectionRules).some(count => count > 0))) || (step < 5 && dishSelectionRules && Object.values(dishSelectionRules).some(count => count > 0))) ? (
@@ -1042,16 +1138,18 @@ const BookingDialog = ({ open, onOpenChange }: Props) => {
                   });
                 })())
               }
-              className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full gradient-warm text-primary-foreground shadow-soft hover:shadow-card transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             >
               Continue
-              <span className="transition-transform group-hover:translate-x-1">→</span>
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           ) : (
             <button
               onClick={() => setIsFinalConfirmModalOpen(true)}
               disabled={!info.name || !info.email || isSubmitting}
-              className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full gradient-warm text-primary-foreground shadow-soft hover:shadow-card transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="group inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Review & Submit
               <span className="transition-transform group-hover:translate-x-1">→</span>
